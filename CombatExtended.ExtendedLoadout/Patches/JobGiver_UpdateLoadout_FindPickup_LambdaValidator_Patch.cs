@@ -1,0 +1,68 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using HarmonyLib;
+using JetBrains.Annotations;
+using RimWorld;
+using Verse;
+
+namespace CombatExtended.ExtendedLoadout
+{
+    [HarmonyPatch]
+    public class JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch
+    {
+        [UsedImplicitly]
+        public static MethodBase TargetMethod()
+        {
+            var type = AccessTools.Inner(typeof(JobGiver_UpdateLoadout), "<>c__DisplayClass6_0");
+            return AccessTools.Method(type, "<FindPickup>b__3");
+        }
+
+        [HarmonyTranspiler]
+        [UsedImplicitly]
+        public static IEnumerable<CodeInstruction> FindPickup_Validator_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+        {
+            var code = instructions.ToList();
+            /*
+              IL_000e:  ldarg.1
+              IL_000f:  ldarg.0
+              IL_0010:  ldfld      class ['Assembly-CSharp']Verse.Pawn CombatExtended.JobGiver_UpdateLoadout/'<>c__DisplayClass6_0'::pawn
+              IL_0015:  call       bool ['Assembly-CSharp']RimWorld.ForbidUtility::IsForbidden(class ['Assembly-CSharp']Verse.Thing, class ['Assembly-CSharp']Verse.Pawn)
+              IL_001a:  brtrue.s   IL_0043
+             */
+            var isForbidden = AccessTools.Method(typeof(ForbidUtility), nameof(ForbidUtility.IsForbidden), new [] {typeof(Thing), typeof(Pawn)});
+            var thisPawn = AccessTools.Field(AccessTools.Inner(typeof(JobGiver_UpdateLoadout), "<>c__DisplayClass6_0"), "pawn");
+            var idx = code.FindIndex(ci => ci.Calls(isForbidden));
+            if (idx == -1)
+            {
+                Log.Error($"Can't find IsForbidden in ce findPickup_validator");
+                return code;
+            }
+
+            idx += 2; // after brtrue.s
+
+            code.InsertRange(idx, new []
+            {
+                new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldfld, thisPawn), // pawn
+                new CodeInstruction(OpCodes.Ldarg_1), // thing
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch), nameof(AllowEquip))), 
+                new CodeInstruction(OpCodes.Brfalse_S, code[idx - 1].operand), // read exit label from brtrue.s
+            });
+
+            //File.WriteAllLines("a:\\before.txt", instructions.Select(x => x.ToString()));
+            //File.WriteAllLines("a:\\after.txt", code.Select(x => x.ToString()));
+            return code;
+        }
+
+        public static bool AllowEquip(Pawn p, Thing t)
+        {
+            if (!t.def.IsWeapon) return true;
+ 
+            var ceLoadoutExtended = CE_LoadoutExtended.LoadoutExtended(p);
+            if (ceLoadoutExtended == null) return true;
+
+            return ceLoadoutExtended.AllowEquip(t);
+        }
+    }
+}
