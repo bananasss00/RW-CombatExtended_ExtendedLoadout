@@ -41,6 +41,10 @@
       <HintPath>..\..\..\#PACKAGES_1.2#\public_access_all\Assembly-CSharp_publicized.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="BetterPawnControl_publicized">
+      <HintPath>..\..\..\#PACKAGES_1.2#\publicized_assemblies\BetterPawnControl_publicized.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="CombatExtended_publicized">
       <HintPath>..\..\..\#PACKAGES_1.2#\publicized_assemblies\CombatExtended_publicized.dll</HintPath>
       <Private>False</Private>
@@ -62,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Loadout\LoadoutMulti_Manager.cs" />
+    <Compile Include="Loadout\Patches\BetterPawnControl_Patch.cs" />
     <Compile Include="Loadout\Patches\LoadoutManager_ExposeData_Patch.cs" />
     <Compile Include="Loadout\Patches\LoadoutProxy_Patch.cs" />
     <Compile Include="Loadout\Loadout_Multi.cs" />

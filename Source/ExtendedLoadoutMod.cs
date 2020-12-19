@@ -10,7 +10,10 @@ namespace CombatExtended.ExtendedLoadout
     {
         static ExtendedLoadoutMod()
         {
-            new Harmony("PirateBY.CombatExtended.ExtendedLoadout").PatchAll();
+            var h = new Harmony("PirateBY.CombatExtended.ExtendedLoadout");
+            h.PatchAll();
+            if (BPC.Active)
+                BPC.Patch(h);
             Log.Message("[CombatExtended.ExtendedLoadout] Initialized");
         }
     }
