@@ -7,6 +7,9 @@ using Verse;
 
 namespace CombatExtended.ExtendedLoadout
 {
+    /// <summary>
+    /// Draw HP and Quality ranges
+    /// </summary>
     [HarmonyPatch(typeof(Dialog_ManageLoadouts), nameof(Dialog_ManageLoadouts.DoWindowContents))]
     public class Dialog_ManageLoadouts_DoWindowContents_Patch
     {

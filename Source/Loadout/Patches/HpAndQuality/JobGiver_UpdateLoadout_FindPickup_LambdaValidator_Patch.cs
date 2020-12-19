@@ -9,6 +9,11 @@ using Verse;
 
 namespace CombatExtended.ExtendedLoadout
 {
+    /// <summary>
+    /// Add HP and Quality validator for PickUp weapons
+    ///
+    /// Versions for MultiLoadout and Standart
+    /// </summary>
     [HarmonyPatch]
     public class JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch
     {
@@ -58,10 +63,17 @@ namespace CombatExtended.ExtendedLoadout
         public static bool AllowEquip(Pawn p, Thing t)
         {
             if (!t.def.IsWeapon) return true;
- 
-            var ceLoadoutExtended = CE_LoadoutExtended.LoadoutExtended(p);
-            if (ceLoadoutExtended == null) return true;
+            
+            var loadout = p.GetLoadout();
+            if (loadout == null) return true;
 
+            if (loadout is Loadout_Multi loadoutMulti)
+            {
+                loadout = loadoutMulti.FindLoadoutWithThingDef(t.def);
+                if (loadout == null) return true;
+            }
+
+            var ceLoadoutExtended = CE_LoadoutExtended.LoadoutExtended(loadout);
             return ceLoadoutExtended.AllowEquip(t);
         }
     }

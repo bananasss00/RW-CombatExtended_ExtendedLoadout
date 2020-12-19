@@ -12,6 +12,7 @@ namespace CombatExtended.ExtendedLoadout
         public static void OnNewGame()
         {
             CE_LoadoutExtended.ClearData();
+            LoadoutMulti_Manager.ClearData();
         }
     }
 }

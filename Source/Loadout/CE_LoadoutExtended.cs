@@ -37,18 +37,6 @@ namespace CombatExtended.ExtendedLoadout
             return result;
         }
 
-        public static CE_LoadoutExtended LoadoutExtended(Pawn pawn)
-        {
-            var loadout = pawn.GetLoadout();
-            if (!Loadouts.TryGetValue(loadout, out var result))
-            {
-                result = new CE_LoadoutExtended() {Loadout = loadout};
-                Loadouts.Add(loadout, result);
-            }
-            DebugLog();
-            return result;
-        }
-
         public static void ClearData()
         {
             Loadouts.Clear();

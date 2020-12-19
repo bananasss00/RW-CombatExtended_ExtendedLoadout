@@ -69,14 +69,14 @@
     <Compile Include="Loadout\Columns\PawnColumnWorker_Loadout1.cs" />
     <Compile Include="Loadout\Patches\Utility_Loadouts_GetLoadout_Patch.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="Patches\CE_LoadoutExtended.cs" />
-    <Compile Include="CE_LoadoutExtended_Extensions.cs" />
+    <Compile Include="Loadout\CE_LoadoutExtended.cs" />
+    <Compile Include="Loadout\Utils\CE_LoadoutExtended_Extensions.cs" />
     <Compile Include="ExtendedLoadoutMod.cs" />
-    <Compile Include="Patches\Dialog_ManageLoadouts_DoWindowContents_Patch.cs" />
-    <Compile Include="Patches\JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch.cs" />
-    <Compile Include="Patches\Root_Play_Start_Patch.cs" />
+    <Compile Include="Loadout\Patches\HpAndQuality\Dialog_ManageLoadouts_DoWindowContents_Patch.cs" />
+    <Compile Include="Loadout\Patches\HpAndQuality\JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch.cs" />
+    <Compile Include="Loadout\Patches\Root_Play_Start_Patch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Patches\Utility_HoldTracker_Patch.cs" />
+    <Compile Include="Loadout\Patches\HpAndQuality\Utility_HoldTracker_Patch.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

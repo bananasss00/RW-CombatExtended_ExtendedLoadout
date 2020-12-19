@@ -16,6 +16,11 @@ namespace CombatExtended.ExtendedLoadout
             Scribe_Collections.Look(ref assignedLoadoutsMulti, "assignedLoadoutsMulti", LookMode.Reference, LookMode.Deep, ref keysWorkingList, ref valuesWorkingList);
         }
 
+        public static void ClearData()
+        {
+            assignedLoadoutsMulti.Clear();
+        }
+
         public static int GetUniqueLoadoutID()
         {
             var loadoutsMulti = assignedLoadoutsMulti.Values;

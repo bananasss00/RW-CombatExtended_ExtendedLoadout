@@ -5,6 +5,11 @@ using Verse;
 
 namespace CombatExtended.ExtendedLoadout
 {
+    /// <summary>
+    /// Add HP and Quality validator for drop Excess weapons.
+    ///
+    /// Versions for MultiLoadout and Standart
+    /// </summary>
     [HarmonyPatch(typeof(Utility_HoldTracker))]
     public class Utility_HoldTracker_Patch
     {
@@ -19,12 +24,18 @@ namespace CombatExtended.ExtendedLoadout
             if (__result) return; // try find equipped weapon for drop when not has ExcessThing
 
             Loadout loadout = pawn.GetLoadout();
-            if (loadout == null || loadout.Slots.NullOrEmpty() || pawn.equipment?.Primary == null)
+            ThingWithComps gun = pawn.equipment?.Primary;
+            if (loadout == null || loadout.Slots.NullOrEmpty() || gun == null || !gun.def.IsWeapon)
                 return;
 
+            if (loadout is Loadout_Multi loadoutMulti)
+            {
+                loadout = loadoutMulti.FindLoadoutWithThingDef(gun.def);
+                if (loadout == null) return;
+            }
+
             var ceLoadoutExtended = CE_LoadoutExtended.LoadoutExtended(loadout);
-            var gun = pawn.equipment.Primary;
-            if (gun.def.IsWeapon && !ceLoadoutExtended.AllowEquip(gun))
+            if (!ceLoadoutExtended.AllowEquip(gun))
             {
                 dropEquipment = gun;
                 __result = true;
@@ -46,7 +57,30 @@ namespace CombatExtended.ExtendedLoadout
             if (pawn.inventory?.innerContainer == null || loadout == null || loadout.Slots.NullOrEmpty())
                 return;
 
-            var ceLoadoutExtended = CE_LoadoutExtended.LoadoutExtended(loadout);
+            CE_LoadoutExtended ceLoadoutExtended;
+            if (loadout is Loadout_Multi loadoutMulti)
+            {
+                foreach (Thing thing in pawn.inventory.innerContainer)
+                {
+                    Thing thing2 = thing.GetInnerIfMinified();
+                    if (!thing2.def.IsWeapon) continue;
+                    loadout = loadoutMulti.FindLoadoutWithThingDef(thing2.def);
+                    if (loadout == null) continue;
+
+                    ceLoadoutExtended = CE_LoadoutExtended.LoadoutExtended(loadout);
+                    if (!ceLoadoutExtended.AllowEquip(thing2))
+                    {
+                        dropThing = thing2;
+                        dropCount = 1;
+                        __result = true;
+                        DbgLog.Msg($"{pawn.LabelCap} drop from inventory {dropThing}. HP_RANGE:{ceLoadoutExtended.HpRange}; QUALITY_RANGE:{ceLoadoutExtended.QualityRange}");
+                        return;
+                    }
+                }
+                return;
+            }
+
+            ceLoadoutExtended = CE_LoadoutExtended.LoadoutExtended(loadout);
             foreach (Thing thing in pawn.inventory.innerContainer)
             {
                 Thing thing2 = thing.GetInnerIfMinified();
