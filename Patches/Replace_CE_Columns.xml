@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+	<Operation Class="PatchOperationReplace">
+		<xpath>Defs/PawnTableDef[defName="Assign"]/columns/li[text()="Loadout"]</xpath>
+		<value>
+			<li>Loadout1</li>
+			<li>Loadout2</li>
+		</value>
+	</Operation>
+	
+</Patch>
+

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+	<name>Combat Extended - Extended Loadout</name>
+	<author>PirateBY</author>
+	<supportedVersions>
+		<li>1.2</li>
+	</supportedVersions>
+	<packageId>pirateby.ce.extendedloadout</packageId>
+	<description> 
+	</description>
+	<modDependencies>
+		<li>
+			<packageId>CETeam.CombatExtended</packageId>
+			<displayName>Combat Extended</displayName>
+			<steamWorkshopUrl> </steamWorkshopUrl>
+			<downloadUrl> </downloadUrl>
+		</li>
+	</modDependencies>
+	<loadAfter>
+		<li>CETeam.CombatExtended</li>
+	</loadAfter>
+</ModMetaData>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <PawnColumnDef>
+    <defName>Loadout1</defName>
+    <label>Loadout1</label>
+    <workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout1</workerClass>
+    <sortable>true</sortable>
+  </PawnColumnDef>
+  
+  <PawnColumnDef>
+    <defName>Loadout2</defName>
+    <label>Loadout2</label>
+    <workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout2</workerClass>
+    <sortable>true</sortable>
+  </PawnColumnDef>
+  
+</Defs>

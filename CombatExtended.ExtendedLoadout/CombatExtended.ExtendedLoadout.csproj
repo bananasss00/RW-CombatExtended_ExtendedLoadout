@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -49,8 +51,23 @@
       <HintPath>..\..\..\#PACKAGES_1.2#\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>..\..\..\#PACKAGES_1.2#\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>..\..\..\#PACKAGES_1.2#\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Loadout\LoadoutMulti_Manager.cs" />
+    <Compile Include="Loadout\Patches\LoadoutManager_ExposeData_Patch.cs" />
+    <Compile Include="Loadout\Patches\LoadoutProxy_Patch.cs" />
+    <Compile Include="Loadout\Loadout_Multi.cs" />
+    <Compile Include="Loadout\Columns\PawnColumnWorker_Loadout2.cs" />
+    <Compile Include="Loadout\Columns\PawnColumnWorker_Loadout1.cs" />
+    <Compile Include="Loadout\Patches\Utility_Loadouts_GetLoadout_Patch.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Patches\CE_LoadoutExtended.cs" />
     <Compile Include="CE_LoadoutExtended_Extensions.cs" />
