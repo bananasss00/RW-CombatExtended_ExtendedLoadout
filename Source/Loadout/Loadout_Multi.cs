@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using RimWorld;
@@ -9,38 +11,29 @@ namespace CombatExtended.ExtendedLoadout
 {
     public class Loadout_Multi : Loadout, IExposable, ILoadReferenceable
     {
+        //public const int LOADOUTS_COUNT = 4;
+
         public new int uniqueID;
         public new int SlotCount => Slots?.Count ?? 0;
         public new List<LoadoutSlot> Slots { get; private set; }
-        private Loadout _loadout1, _loadout2;
-
-        public Loadout Loadout1
-        {
-            get => _loadout1;
-            set
-            {
-                _loadout1 = value;
-                // concat if another loadouts not null
-                Slots = _loadout2 == null ? _loadout1.Slots : _loadout1.Slots.Concat(_loadout2.Slots).ToList();
-            }
-        }
-
-        public Loadout Loadout2
-        {
-            get => _loadout2;
-            set
-            {
-                _loadout2 = value;
-                // concat if another loadouts not null
-                Slots = _loadout1 == null ? _loadout2.Slots : _loadout1.Slots.Concat(_loadout2.Slots).ToList();
-            }
-        }
+        private List<Loadout> _loadouts;
 
         public Loadout_Multi()
         {
-            Loadout1 = LoadoutManager.DefaultLoadout;
-            Loadout2 = LoadoutManager.DefaultLoadout;
+            _loadouts = Enumerable.Repeat(LoadoutManager.DefaultLoadout, ConfigDefOf.Config.columnsCount).ToList();
             uniqueID = LoadoutMulti_Manager.GetUniqueLoadoutID();
+        }
+
+        public List<Loadout> Loadouts => _loadouts;
+        
+        public Loadout this[int index]
+        {
+            get => _loadouts[index];
+            set
+            {
+                _loadouts[index] = value;
+                Slots = _loadouts.Where(x => x != null).SelectMany(x => x.Slots).ToList();
+            }
         }
 
         public new string GetUniqueLoadID()
@@ -51,8 +44,20 @@ namespace CombatExtended.ExtendedLoadout
         public new void ExposeData()
         {
             Scribe_Values.Look(ref uniqueID, "uniqueID");
-            Scribe_References.Look(ref _loadout1, "Loadout1");
-            Scribe_References.Look(ref _loadout2, "Loadout2");
+            Scribe_Collections.Look(ref _loadouts, "loadouts", LookMode.Reference);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                int sizeDelta = ConfigDefOf.Config.columnsCount - _loadouts.Count;
+                Log.Warning($"[Loadout_Multi] Fix loadouts list. Count difference: {sizeDelta}");
+                if (sizeDelta > 0)
+                {
+                    for (int i = 0; i < sizeDelta; i++) _loadouts.Add(LoadoutManager.DefaultLoadout);
+                }
+                else if (sizeDelta < 0)
+                {
+                    for (int i = 0; i < Math.Abs(sizeDelta); i++) _loadouts.RemoveAt(_loadouts.Count - 1);
+                }
+            }
         }
 
         /// <summary>
@@ -62,10 +67,11 @@ namespace CombatExtended.ExtendedLoadout
         /// <returns></returns>
         public Loadout FindLoadoutWithThingDef(ThingDef t)
         {
-            foreach (var slot in Loadout1.Slots)
-                if (slot.thingDef == t) return Loadout1;
-            foreach (var slot in Loadout2.Slots)
-                if (slot.thingDef == t) return Loadout2;
+            foreach (var loadout in _loadouts)
+            {
+                foreach (var slot in loadout.Slots)
+                    if (slot.thingDef == t) return loadout;
+            }
             return null;
         }
     }

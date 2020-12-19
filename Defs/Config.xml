@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <CombatExtended.ExtendedLoadout.Config>
+    <defName>Config</defName>
+	
+    <!-- value in range 2-5 -->
+    <columnsCount>3</columnsCount>
+	
+  </CombatExtended.ExtendedLoadout.Config>
+  
+</Defs>

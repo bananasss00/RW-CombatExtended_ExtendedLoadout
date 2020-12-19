@@ -6,11 +6,14 @@ using Verse;
 namespace CombatExtended.ExtendedLoadout
 {
     /// <summary>
-    /// Replaced pawn.GetLoadout() => pawn.GetLoadout().Loadout1, and SetLoadout1
+    /// Replaced pawn.GetLoadout() => pawn.GetLoadout().Loadout2, and SetLoadout2
     /// </summary>
-    public class PawnColumnWorker_Loadout1 : PawnColumnWorker_Loadout
+    public abstract class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
     {
-        private IEnumerable<Widgets.DropdownMenuElement<Loadout>> Button_GenerateMenu1(Pawn pawn)
+        public abstract int ColumnIdx { get; }
+        public abstract bool DrawBtnManageLoadouts { get; }
+
+        protected IEnumerable<Widgets.DropdownMenuElement<Loadout>> Btn_GenerateMenu(Pawn pawn)
         {
             using (List<Loadout>.Enumerator enu = LoadoutManager.Loadouts.GetEnumerator())
             {
@@ -21,11 +24,60 @@ namespace CombatExtended.ExtendedLoadout
                     {
                         option = new FloatMenuOption(loadout.LabelCap, delegate ()
                         {
-                            pawn.SetLoadout1(loadout);
+                            pawn.SetLoadout(loadout, ColumnIdx);
                         }),
                         payload = loadout
                     };
                 }
+            }
+        }
+
+        public override void DoHeader(Rect rect, PawnTable table)
+        {
+            if (DrawBtnManageLoadouts)
+            {
+                base.DoHeader(rect, table);
+                return;
+            }
+
+            // dont call base.DoHeader(rect, table) (PawnColumnWorker_Loadout.DoHeader), because he draw button ManageLoadouts
+            // instead draw vanilla base code
+            if (!def.label.NullOrEmpty())
+            {
+                Text.Font = DefaultHeaderFont;
+                GUI.color = DefaultHeaderColor;
+                Text.Anchor = TextAnchor.LowerCenter;
+                var rect2 = rect;
+                rect2.y += 3f;
+                Widgets.Label(rect2, def.LabelCap.Resolve().Truncate(rect.width));
+                Text.Anchor = TextAnchor.UpperLeft;
+                GUI.color = Color.white;
+                Text.Font = GameFont.Small;
+            }
+            else if (def.HeaderIcon != null)
+            {
+                var headerIconSize = def.HeaderIconSize;
+                var num = (int) ((rect.width - headerIconSize.x) / 2f);
+                GUI.DrawTexture(new Rect(rect.x + num, rect.yMax - headerIconSize.y, headerIconSize.x, headerIconSize.y).ContractedBy(2f), def.HeaderIcon);
+            }
+
+            if (table.SortingBy == def)
+            {
+                var texture2D = table.SortingDescending ? SortingDescendingIcon : SortingIcon;
+                GUI.DrawTexture(new Rect(rect.xMax - texture2D.width - 1f, rect.yMax - texture2D.height - 1f, texture2D.width, texture2D.height), texture2D);
+            }
+
+            if (def.HeaderInteractable)
+            {
+                var interactableHeaderRect = GetInteractableHeaderRect(rect, table);
+                if (Mouse.IsOver(interactableHeaderRect))
+                {
+                    Widgets.DrawHighlight(interactableHeaderRect);
+                    var headerTip = GetHeaderTip(table);
+                    if (!headerTip.NullOrEmpty()) TooltipHandler.TipRegion(interactableHeaderRect, headerTip);
+                }
+
+                if (Widgets.ButtonInvisible(interactableHeaderRect)) HeaderClicked(rect, table);
             }
         }
 
@@ -52,8 +104,8 @@ namespace CombatExtended.ExtendedLoadout
             }
 
             // Main loadout button
-            string label = (pawn.GetLoadout() as Loadout_Multi).Loadout1.label.Truncate(loadoutButtonRect.width, null);
-            Widgets.Dropdown<Pawn, Loadout>(loadoutButtonRect, pawn, p => (p.GetLoadout() as Loadout_Multi).Loadout1, Button_GenerateMenu1, label, null, null, null, null, true);
+            string label = (pawn.GetLoadout() as Loadout_Multi)[ColumnIdx].label.Truncate(loadoutButtonRect.width, null);
+            Widgets.Dropdown<Pawn, Loadout>(loadoutButtonRect, pawn, p => (p.GetLoadout() as Loadout_Multi)[ColumnIdx], Btn_GenerateMenu, label, null, null, null, null, true);
 
             // Clear forced button
             num3 += loadoutButtonRect.width;
@@ -85,7 +137,7 @@ namespace CombatExtended.ExtendedLoadout
             //changed: if (Widgets.ButtonText(assignTabRect, "AssignTabEdit".Translate(), true, false, true))
             if (Widgets.ButtonImage(assignTabRect, EditImage))
             {
-                Find.WindowStack.Add(new Dialog_ManageLoadouts((pawn.GetLoadout() as Loadout_Multi).Loadout1));
+                Find.WindowStack.Add(new Dialog_ManageLoadouts((pawn.GetLoadout() as Loadout_Multi)[ColumnIdx]));
             }
             // Added this next line.
             TooltipHandler.TipRegion(assignTabRect, new TipSignal(textGetter("CE_Loadouts"), pawn.GetHashCode() * 613));

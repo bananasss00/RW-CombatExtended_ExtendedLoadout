@@ -39,26 +39,15 @@ namespace CombatExtended.ExtendedLoadout
             return loadout;
         }
 
-        public static void SetLoadout1(this Pawn pawn, Loadout loadout)
+        public static void SetLoadout(this Pawn pawn, Loadout loadout, int index)
         {
             if (pawn == null)
                 throw new ArgumentNullException("pawn");
 
             if (assignedLoadoutsMulti.ContainsKey(pawn))
-                assignedLoadoutsMulti[pawn].Loadout1 = loadout;
+                assignedLoadoutsMulti[pawn][index] = loadout;
             else
-                assignedLoadoutsMulti.Add(pawn, new Loadout_Multi() {Loadout1 = loadout});
-        }
-
-        public static void SetLoadout2(this Pawn pawn, Loadout loadout)
-        {
-            if (pawn == null)
-                throw new ArgumentNullException("pawn");
-
-            if (assignedLoadoutsMulti.ContainsKey(pawn))
-                assignedLoadoutsMulti[pawn].Loadout2 = loadout;
-            else
-                assignedLoadoutsMulti.Add(pawn, new Loadout_Multi() {Loadout2 = loadout});
+                assignedLoadoutsMulti.Add(pawn, new Loadout_Multi {[index] = loadout});
         }
     }
 }

@@ -12,7 +12,7 @@ namespace CombatExtended.ExtendedLoadout
 {
     public class BPC_AssignLink_Manager
     {
-        public static Dictionary<AssignLink, (int, int)> LoadoutIds = new Dictionary<AssignLink, (int, int)>();
+        public static Dictionary<AssignLink, List<int>> LoadoutIds = new Dictionary<AssignLink, List<int>>();
     }
 
     public static class BPC
@@ -32,10 +32,11 @@ namespace CombatExtended.ExtendedLoadout
         {
             if (BPC_AssignLink_Manager.LoadoutIds.TryGetValue(assignLink, out var ids))
             {
-                var id1 = LoadoutManager.GetLoadoutById(ids.Item1);
-                var id2 = LoadoutManager.GetLoadoutById(ids.Item2);
-                pawn.SetLoadout1(id1);
-                pawn.SetLoadout2(id2);
+                for (int i = 0; i < ids.Count; i++)
+                {
+                    var loadout = LoadoutManager.GetLoadoutById(ids[i]);
+                    pawn.SetLoadout(loadout, i);
+                }
             }
             Log.Warning($"LoadLoadoutById");
         }
@@ -45,13 +46,11 @@ namespace CombatExtended.ExtendedLoadout
             var loadoutMulti = pawn.GetLoadout() as Loadout_Multi;
             if (!BPC_AssignLink_Manager.LoadoutIds.ContainsKey(assignLink))
             {
-                var ids = (loadoutMulti.Loadout1.uniqueID, loadoutMulti.Loadout2.uniqueID);
-                BPC_AssignLink_Manager.LoadoutIds.Add(assignLink, ids);
+                BPC_AssignLink_Manager.LoadoutIds.Add(assignLink, loadoutMulti.Loadouts.Select(x => x.uniqueID).ToList());
             }
             else
             {
-                var ids = (loadoutMulti.Loadout1.uniqueID, loadoutMulti.Loadout2.uniqueID);
-                BPC_AssignLink_Manager.LoadoutIds[assignLink] = ids;
+                BPC_AssignLink_Manager.LoadoutIds[assignLink] = loadoutMulti.Loadouts.Select(x => x.uniqueID).ToList();
             }
             Log.Warning($"SaveLoadoutId");
         }
