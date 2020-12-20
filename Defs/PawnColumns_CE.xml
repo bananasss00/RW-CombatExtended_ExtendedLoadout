@@ -22,4 +22,18 @@
 		<sortable>true</sortable>
 	</PawnColumnDef>
 
+	<!-- <PawnColumnDef> -->
+		<!-- <defName>Loadout_3</defName> -->
+		<!-- <label>Loadout4</label> -->
+		<!-- <workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout_Multi</workerClass> -->
+		<!-- <sortable>true</sortable> -->
+	<!-- </PawnColumnDef> -->
+
+	<!-- <PawnColumnDef> -->
+		<!-- <defName>Loadout_4</defName> -->
+		<!-- <label>Loadout5</label> -->
+		<!-- <workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout_Multi</workerClass> -->
+		<!-- <sortable>true</sortable> -->
+	<!-- </PawnColumnDef> -->
+
 </Defs>
