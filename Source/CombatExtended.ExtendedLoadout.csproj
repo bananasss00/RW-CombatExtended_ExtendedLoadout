@@ -75,7 +75,6 @@
     <Compile Include="Loadout\Patches\LoadoutManager_ExposeData_Patch.cs" />
     <Compile Include="Loadout\Patches\LoadoutProxy_Patch.cs" />
     <Compile Include="Loadout\Loadout_Multi.cs" />
-    <Compile Include="Loadout\Columns\PawnColumnWorker_Loadouts.cs" />
     <Compile Include="Loadout\Patches\Utility_Loadouts_GetLoadout_Patch.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Loadout\CE_LoadoutExtended.cs" />

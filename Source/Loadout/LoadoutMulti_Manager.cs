@@ -14,6 +14,12 @@ namespace CombatExtended.ExtendedLoadout
         public static void ExposeData()
         {
             Scribe_Collections.Look(ref assignedLoadoutsMulti, "assignedLoadoutsMulti", LookMode.Reference, LookMode.Deep, ref keysWorkingList, ref valuesWorkingList);
+            
+            // fix for old saves
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && assignedLoadoutsMulti == null)
+                assignedLoadoutsMulti = new Dictionary<Pawn, Loadout_Multi>();
+
+            DbgLog.Msg($"LoadoutMulti_Manager ExposeData");
         }
 
         public static void ClearData()

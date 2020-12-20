@@ -24,6 +24,7 @@ namespace CombatExtended.ExtendedLoadout
             var ceLoadoutExtended = LoadoutExtended(__instance);
             Scribe_Values.Look(ref ceLoadoutExtended.HpRange, "hpRange", FloatRange.ZeroToOne);
             Scribe_Values.Look(ref ceLoadoutExtended.QualityRange, "qualityRange", QualityRange.All);
+            DbgLog.Msg($"CE_LoadoutExtended ExposeData");
         }
 
         public static CE_LoadoutExtended LoadoutExtended(Loadout loadout)

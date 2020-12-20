@@ -22,7 +22,7 @@ namespace CombatExtended.ExtendedLoadout
 
     public class Config : Def
     {
-        public int columnsCount;
+        public bool useMultiLoadouts;
     }
 
     public class ExtendedLoadoutMod : ModBase
@@ -34,6 +34,11 @@ namespace CombatExtended.ExtendedLoadout
             
         }
 
+        public override void MapComponentsInitializing(Map map)
+        {
+            base.MapComponentsInitializing(map);
+        }
+
         public override void DefsLoaded()
         {
             var h = new Harmony("PirateBY.CombatExtended.ExtendedLoadout");
@@ -43,8 +48,8 @@ namespace CombatExtended.ExtendedLoadout
                 BPC.Patch(h);
             Log.Message("[CombatExtended.ExtendedLoadout] Initialized");
 
-            if (!(ConfigDefOf.Config.columnsCount >= 2 && ConfigDefOf.Config.columnsCount <= 5))
-                return;
+            var loadoutColumnDefs = DefDatabase<PawnColumnDef>.AllDefs.Where(x => x.defName.StartsWith("Loadout_")).ToList();
+            Loadout_Multi.ColumnsCount = loadoutColumnDefs.Count;
 
             // inject columns
             var assign = DefDatabase<PawnTableDef>.GetNamed("Assign");
@@ -56,24 +61,7 @@ namespace CombatExtended.ExtendedLoadout
                 return;
             }
             pawnColumnDefs.RemoveAt(idx);
-            pawnColumnDefs.InsertRange(idx, GeneratePawnColumnDefs());
-        }
-
-        private IEnumerable<PawnColumnDef> GeneratePawnColumnDefs()
-        {
-            var columns = typeof(PawnColumnWorker_Loadout_Multi)
-                .AllSubclasses()
-                .OrderBy(x => x.Name)
-                .ToList();
-
-            for (int i = 0; i < ConfigDefOf.Config.columnsCount; i++)
-                yield return new PawnColumnDef()
-                {
-                    defName = $"Loadout{i}",
-                    workerClass = columns[i],
-                    label = $"Loadout{i + 1}",
-                    sortable = true
-                };
+            pawnColumnDefs.InsertRange(idx, loadoutColumnDefs);
         }
     }
 }

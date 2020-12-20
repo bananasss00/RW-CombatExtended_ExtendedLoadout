@@ -2,10 +2,9 @@
 <Defs>
 
   <CombatExtended.ExtendedLoadout.Config>
+  
     <defName>Config</defName>
-	
-    <!-- value in range 2-5 -->
-    <columnsCount>3</columnsCount>
+    <useMultiLoadouts>true</useMultiLoadouts>
 	
   </CombatExtended.ExtendedLoadout.Config>
   

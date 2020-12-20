@@ -8,10 +8,12 @@ namespace CombatExtended.ExtendedLoadout
     /// <summary>
     /// Replaced pawn.GetLoadout() => pawn.GetLoadout().Loadout2, and SetLoadout2
     /// </summary>
-    public abstract class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
+    public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
     {
-        public abstract int ColumnIdx { get; }
-        public abstract bool DrawBtnManageLoadouts { get; }
+        private int GetIndexFromDefName(string defName)
+        {
+            return int.Parse(defName.Split('_')[1]);
+        }
 
         protected IEnumerable<Widgets.DropdownMenuElement<Loadout>> Btn_GenerateMenu(Pawn pawn)
         {
@@ -24,7 +26,7 @@ namespace CombatExtended.ExtendedLoadout
                     {
                         option = new FloatMenuOption(loadout.LabelCap, delegate ()
                         {
-                            pawn.SetLoadout(loadout, ColumnIdx);
+                            pawn.SetLoadout(loadout, GetIndexFromDefName(def.defName));
                         }),
                         payload = loadout
                     };
@@ -34,7 +36,7 @@ namespace CombatExtended.ExtendedLoadout
 
         public override void DoHeader(Rect rect, PawnTable table)
         {
-            if (DrawBtnManageLoadouts)
+            if (GetIndexFromDefName(def.defName) == 0)
             {
                 base.DoHeader(rect, table);
                 return;
@@ -87,6 +89,9 @@ namespace CombatExtended.ExtendedLoadout
             {
                 return;
             }
+
+            int index = GetIndexFromDefName(def.defName);
+
             //changed: int num = Mathf.FloorToInt((rect.width - 4f) * 0.714285731f);
             int num = Mathf.FloorToInt((rect.width - 4f) - IconSize);
             //changed: int num2 = Mathf.FloorToInt((rect.width - 4f) * 0.2857143f);
@@ -104,8 +109,8 @@ namespace CombatExtended.ExtendedLoadout
             }
 
             // Main loadout button
-            string label = (pawn.GetLoadout() as Loadout_Multi)[ColumnIdx].label.Truncate(loadoutButtonRect.width, null);
-            Widgets.Dropdown<Pawn, Loadout>(loadoutButtonRect, pawn, p => (p.GetLoadout() as Loadout_Multi)[ColumnIdx], Btn_GenerateMenu, label, null, null, null, null, true);
+            string label = (pawn.GetLoadout() as Loadout_Multi)[index].label.Truncate(loadoutButtonRect.width, null);
+            Widgets.Dropdown<Pawn, Loadout>(loadoutButtonRect, pawn, p => (p.GetLoadout() as Loadout_Multi)[index], Btn_GenerateMenu, label, null, null, null, null, true);
 
             // Clear forced button
             num3 += loadoutButtonRect.width;
@@ -137,7 +142,7 @@ namespace CombatExtended.ExtendedLoadout
             //changed: if (Widgets.ButtonText(assignTabRect, "AssignTabEdit".Translate(), true, false, true))
             if (Widgets.ButtonImage(assignTabRect, EditImage))
             {
-                Find.WindowStack.Add(new Dialog_ManageLoadouts((pawn.GetLoadout() as Loadout_Multi)[ColumnIdx]));
+                Find.WindowStack.Add(new Dialog_ManageLoadouts((pawn.GetLoadout() as Loadout_Multi)[index]));
             }
             // Added this next line.
             TooltipHandler.TipRegion(assignTabRect, new TipSignal(textGetter("CE_Loadouts"), pawn.GetHashCode() * 613));

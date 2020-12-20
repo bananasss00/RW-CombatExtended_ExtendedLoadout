@@ -14,7 +14,7 @@ namespace CombatExtended.ExtendedLoadout
                 float hp = GenMath.RoundedHundredth((float)t.HitPoints / (float)t.MaxHitPoints);
                 if (!hpRange.IncludesEpsilon(Mathf.Clamp01(hp)))
                 {
-                    Log.Warning($"{t.LabelCap} not allowed with hp: {hp}. range: {hpRange}");
+                    DbgLog.Wrn($"{t.LabelCap} not allowed with hp: {hp}. range: {hpRange}");
                     return false;
                 }
             }
@@ -26,7 +26,7 @@ namespace CombatExtended.ExtendedLoadout
                     qc = QualityCategory.Normal;
                 if (!qualityRange.Includes(qc))
                 {
-                    Log.Warning($"{t.LabelCap} not allowed with quality: {qc}. range: {qualityRange}");
+                    DbgLog.Wrn($"{t.LabelCap} not allowed with quality: {qc}. range: {qualityRange}");
                     return false;
                 }
             }

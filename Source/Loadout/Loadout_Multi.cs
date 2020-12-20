@@ -11,7 +11,7 @@ namespace CombatExtended.ExtendedLoadout
 {
     public class Loadout_Multi : Loadout, IExposable, ILoadReferenceable
     {
-        //public const int LOADOUTS_COUNT = 4;
+        public static int ColumnsCount { get; set; }
 
         public new int uniqueID;
         public new int SlotCount => Slots?.Count ?? 0;
@@ -20,7 +20,7 @@ namespace CombatExtended.ExtendedLoadout
 
         public Loadout_Multi()
         {
-            _loadouts = Enumerable.Repeat(LoadoutManager.DefaultLoadout, ConfigDefOf.Config.columnsCount).ToList();
+            _loadouts = Enumerable.Repeat(LoadoutManager.DefaultLoadout, ColumnsCount).ToList();
             uniqueID = LoadoutMulti_Manager.GetUniqueLoadoutID();
         }
 
@@ -47,14 +47,15 @@ namespace CombatExtended.ExtendedLoadout
             Scribe_Collections.Look(ref _loadouts, "loadouts", LookMode.Reference);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                int sizeDelta = ConfigDefOf.Config.columnsCount - _loadouts.Count;
-                Log.Warning($"[Loadout_Multi] Fix loadouts list. Count difference: {sizeDelta}");
+                int sizeDelta = ColumnsCount - _loadouts.Count;
                 if (sizeDelta > 0)
                 {
+                    Log.Warning($"[Loadout_Multi] Fix loadouts list. Count difference: {sizeDelta}");
                     for (int i = 0; i < sizeDelta; i++) _loadouts.Add(LoadoutManager.DefaultLoadout);
                 }
                 else if (sizeDelta < 0)
                 {
+                    Log.Warning($"[Loadout_Multi] Fix loadouts list. Count difference: {sizeDelta}");
                     for (int i = 0; i < Math.Abs(sizeDelta); i++) _loadouts.RemoveAt(_loadouts.Count - 1);
                 }
             }
