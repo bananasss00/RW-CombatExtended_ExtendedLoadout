@@ -17,6 +17,8 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch]
     public class JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch
     {
+        static bool Prepare() => ConfigDefOf.Config.useHpAndQualityInLoadouts;
+
         [UsedImplicitly]
         public static MethodBase TargetMethod()
         {

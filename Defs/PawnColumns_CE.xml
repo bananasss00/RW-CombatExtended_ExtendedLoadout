@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <PawnColumnDef>
-    <defName>Loadout_0</defName>
-    <label>Loadout1</label>
-    <workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout_Multi</workerClass>
-    <sortable>true</sortable>
-  </PawnColumnDef>
-  
-  <PawnColumnDef>
-    <defName>Loadout_1</defName>
-    <label>Loadout2</label>
-    <workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout_Multi</workerClass>
-    <sortable>true</sortable>
-  </PawnColumnDef>
-  
-  <PawnColumnDef>
-    <defName>Loadout_2</defName>
-    <label>Loadout3</label>
-    <workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout_Multi</workerClass>
-    <sortable>true</sortable>
-  </PawnColumnDef>
-  
+	<PawnColumnDef>
+		<defName>Loadout_0</defName>
+		<label>Loadout1</label>
+		<workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout_Multi</workerClass>
+		<sortable>true</sortable>
+	</PawnColumnDef>
+
+	<PawnColumnDef>
+		<defName>Loadout_1</defName>
+		<label>Loadout2</label>
+		<workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout_Multi</workerClass>
+		<sortable>true</sortable>
+	</PawnColumnDef>
+
+	<PawnColumnDef>
+		<defName>Loadout_2</defName>
+		<label>Loadout3</label>
+		<workerClass>CombatExtended.ExtendedLoadout.PawnColumnWorker_Loadout_Multi</workerClass>
+		<sortable>true</sortable>
+	</PawnColumnDef>
+
 </Defs>

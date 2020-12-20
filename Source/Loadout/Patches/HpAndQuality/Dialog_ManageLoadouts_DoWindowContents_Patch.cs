@@ -13,6 +13,8 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch(typeof(Dialog_ManageLoadouts), nameof(Dialog_ManageLoadouts.DoWindowContents))]
     public class Dialog_ManageLoadouts_DoWindowContents_Patch
     {
+        static bool Prepare() => ConfigDefOf.Config.useHpAndQualityInLoadouts;
+
         [HarmonyTranspiler]
         [UsedImplicitly]
         public static IEnumerable<CodeInstruction> DoWindowContents_Transpiler(IEnumerable<CodeInstruction> instructions)

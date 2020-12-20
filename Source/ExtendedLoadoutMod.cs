@@ -22,6 +22,7 @@ namespace CombatExtended.ExtendedLoadout
 
     public class Config : Def
     {
+        public bool useHpAndQualityInLoadouts;
         public bool useMultiLoadouts;
     }
 
@@ -42,26 +43,33 @@ namespace CombatExtended.ExtendedLoadout
         public override void DefsLoaded()
         {
             var h = new Harmony("PirateBY.CombatExtended.ExtendedLoadout");
-            // TODO: columns patch if columns count valid
-            h.PatchAll();
-            if (BPC.Active)
-                BPC.Patch(h);
-            Log.Message("[CombatExtended.ExtendedLoadout] Initialized");
-
+            var config = ConfigDefOf.Config;
             var loadoutColumnDefs = DefDatabase<PawnColumnDef>.AllDefs.Where(x => x.defName.StartsWith("Loadout_")).ToList();
+            
             Loadout_Multi.ColumnsCount = loadoutColumnDefs.Count;
+            if (Loadout_Multi.ColumnsCount < 2)
+                config.useMultiLoadouts = false;
 
-            // inject columns
-            var assign = DefDatabase<PawnTableDef>.GetNamed("Assign");
-            var pawnColumnDefs = assign.columns;
-            int idx = pawnColumnDefs.FindIndex(x => x.defName.Equals("Loadout"));
-            if (idx == -1)
+            if (config.useMultiLoadouts)
             {
-                Log.Error($"[ExtendedLoadoutMod] Can't find CE Loadout column");
-                return;
+                var assign = DefDatabase<PawnTableDef>.GetNamed("Assign");
+                var pawnColumnDefs = assign.columns;
+                int idx = pawnColumnDefs.FindIndex(x => x.defName.Equals("Loadout"));
+                if (idx == -1)
+                {
+                    Log.Error($"[ExtendedLoadoutMod] Can't find CE Loadout column");
+                    return;
+                }
+                pawnColumnDefs.RemoveAt(idx);
+                pawnColumnDefs.InsertRange(idx, loadoutColumnDefs);
+                Log.Message("[CombatExtended.ExtendedLoadout] Loadout columns injected");
+
+                if (BPC.Active)
+                    BPC.Patch(h);
             }
-            pawnColumnDefs.RemoveAt(idx);
-            pawnColumnDefs.InsertRange(idx, loadoutColumnDefs);
+
+            h.PatchAll();
+            Log.Message("[CombatExtended.ExtendedLoadout] Initialized");
         }
     }
 }

@@ -1,11 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <CombatExtended.ExtendedLoadout.Config>
-  
-    <defName>Config</defName>
-    <useMultiLoadouts>true</useMultiLoadouts>
-	
-  </CombatExtended.ExtendedLoadout.Config>
-  
+	<CombatExtended.ExtendedLoadout.Config>
+
+		<defName>Config</defName>
+		
+		<!-- Add HP and Quality ranges for CE loadouts -->
+		<useHpAndQualityInLoadouts>true</useHpAndQualityInLoadouts>
+		
+		<!-- Add more loadouts from PawnColumns_CE.xml-->
+		<useMultiLoadouts>true</useMultiLoadouts>
+		
+	</CombatExtended.ExtendedLoadout.Config>
+
 </Defs>

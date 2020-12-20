@@ -91,6 +91,7 @@ namespace CombatExtended.ExtendedLoadout
             h.Patch(assignLinkExposeData, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_ExposeData_Postfix)));
             h.Patch(saveCurrentState, transpiler: new HarmonyMethod(typeof(BPC), nameof(BetterPawnControl_AssignManager_SaveCurrentState)));
             h.Patch(loadState, transpiler: new HarmonyMethod(typeof(BPC), nameof(BetterPawnControl_AssignManager_LoadState)));
+            Log.Message("[CombatExtended.ExtendedLoadout] BetterPawnControl patches initialized");
         }
 
         public static void LoadLoadoutById(Pawn pawn, AssignLink assignLink)
