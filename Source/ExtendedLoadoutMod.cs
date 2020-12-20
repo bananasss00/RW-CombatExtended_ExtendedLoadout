@@ -64,7 +64,7 @@ namespace CombatExtended.ExtendedLoadout
                 pawnColumnDefs.InsertRange(idx, loadoutColumnDefs);
                 Log.Message("[CombatExtended.ExtendedLoadout] Loadout columns injected");
 
-                if (BPC.Active)
+                if (ModActive.BetterPawnControl)
                     BPC.Patch(h);
             }
 

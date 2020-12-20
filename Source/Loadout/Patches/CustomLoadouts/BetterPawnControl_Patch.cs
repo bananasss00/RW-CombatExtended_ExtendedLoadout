@@ -13,7 +13,13 @@ namespace CombatExtended.ExtendedLoadout
 {
     public class BPC_AssignLink_Manager
     {
-        private static Dictionary<AssignLink, List<int>> LoadoutIds = new Dictionary<AssignLink, List<int>>();
+        /// <summary>
+        /// Hide BetterPawnControl type AssignLink.
+        /// Dictionary< AssignLink, List<int> >
+        ///
+        /// All Types in fields use referenced assemblies. All Types in methods use referenced assemblies when called
+        /// </summary>
+        private static Dictionary<object, List<int>> LoadoutIds = new Dictionary<object, List<int>>();
 
         public static void AddColumnsIds(AssignLink link, List<int> columnIds)
         {
@@ -73,18 +79,6 @@ namespace CombatExtended.ExtendedLoadout
 
     public static class BPC
     {
-        private static bool? _active;
-
-        public static bool Active
-        {
-            get
-            {
-                if (_active == null)
-                    _active = ModLister.GetActiveModWithIdentifier("VouLT.BetterPawnControl") != null;
-                return (bool)_active;
-            }
-        }
-
         public static void Patch(Harmony h)
         {
             var assignLinkCtor = AccessTools.Constructor(typeof(AssignLink),
