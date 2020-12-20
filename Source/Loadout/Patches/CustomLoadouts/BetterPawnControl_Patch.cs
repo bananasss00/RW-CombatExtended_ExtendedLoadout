@@ -85,7 +85,7 @@ namespace CombatExtended.ExtendedLoadout
                 });
             var assignLinkExposeData = AccessTools.Method(typeof(AssignLink), nameof(AssignLink.ExposeData));
             var saveCurrentState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.SaveCurrentState));
-            var loadState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.LoadState));
+            var loadState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.LoadState), new [] {typeof(List<AssignLink>), typeof(List<Pawn>), typeof(Policy)});
 
             h.Patch(assignLinkCtor, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_Ctor)));
             h.Patch(assignLinkExposeData, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_ExposeData_Postfix)));

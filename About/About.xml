@@ -10,6 +10,11 @@
 	</description>
 	<modDependencies>
 		<li>
+			<packageId>UnlimitedHugs.HugsLib</packageId>
+			<displayName>HugsLib</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/818773962</steamWorkshopUrl>
+		</li>
+		<li>
 			<packageId>CETeam.CombatExtended</packageId>
 			<displayName>Combat Extended</displayName>
 			<steamWorkshopUrl> </steamWorkshopUrl>
@@ -18,5 +23,6 @@
 	</modDependencies>
 	<loadAfter>
 		<li>CETeam.CombatExtended</li>
+		<li>UnlimitedHugs.HugsLib</li>
 	</loadAfter>
 </ModMetaData>
