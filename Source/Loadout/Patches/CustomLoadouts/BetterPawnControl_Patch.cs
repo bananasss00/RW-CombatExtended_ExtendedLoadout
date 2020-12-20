@@ -73,7 +73,17 @@ namespace CombatExtended.ExtendedLoadout
 
     public static class BPC
     {
-        public static bool Active => ModLister.GetActiveModWithIdentifier("VouLT.BetterPawnControl") != null;
+        private static bool? _active;
+
+        public static bool Active
+        {
+            get
+            {
+                if (_active == null)
+                    _active = ModLister.GetActiveModWithIdentifier("VouLT.BetterPawnControl") != null;
+                return (bool)_active;
+            }
+        }
 
         public static void Patch(Harmony h)
         {

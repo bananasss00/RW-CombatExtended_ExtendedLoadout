@@ -15,7 +15,8 @@ namespace CombatExtended.ExtendedLoadout
         {
             CE_LoadoutExtended.ClearData();
             LoadoutMulti_Manager.ClearData();
-            BPC_AssignLink_Manager.ClearData();
+            if (BPC.Active)
+                BPC_AssignLink_Manager.ClearData();
             DbgLog.Msg($"Data cleaned on MapComponentsInitializing");
         }
     }
