@@ -11,17 +11,17 @@ using Verse;
 
 namespace CombatExtended.ExtendedLoadout
 {
+    /// <summary>
+    /// AssignLink in fields and method headers replaced to object.
+    /// </summary>
     public class BPC_AssignLink_Manager
     {
         /// <summary>
-        /// Hide BetterPawnControl type AssignLink.
         /// Dictionary< AssignLink, List<int> >
-        ///
-        /// All Types in fields use referenced assemblies. All Types in methods use referenced assemblies when called
         /// </summary>
         private static Dictionary<object, List<int>> LoadoutIds = new Dictionary<object, List<int>>();
 
-        public static void AddColumnsIds(AssignLink link, List<int> columnIds)
+        public static void AddColumnsIds(object link, List<int> columnIds)
         {
             if (!LoadoutIds.ContainsKey(link))
             {
@@ -33,7 +33,7 @@ namespace CombatExtended.ExtendedLoadout
             }
         }
 
-        public static List<int> GetColumnsIds(AssignLink link)
+        public static List<int> GetColumnsIds(object link)
         {
             if (LoadoutIds.ContainsKey(link))
             {
@@ -47,7 +47,7 @@ namespace CombatExtended.ExtendedLoadout
             LoadoutIds.Clear();
         }
 
-        public static void ExposeData(AssignLink instance)
+        public static void ExposeData(object instance)
         {
             LoadoutIds.TryGetValue(instance, out var columns);
             Scribe_Collections.Look(ref columns, "extendedLoadoutColumns", LookMode.Value);
@@ -98,7 +98,7 @@ namespace CombatExtended.ExtendedLoadout
             Log.Message("[CombatExtended.ExtendedLoadout] BetterPawnControl patches initialized");
         }
 
-        public static void LoadLoadoutById(Pawn pawn, AssignLink assignLink)
+        public static void LoadLoadoutById(Pawn pawn, object assignLink)
         {
             var columns = BPC_AssignLink_Manager.GetColumnsIds(assignLink);
             if (columns != null)
@@ -111,19 +111,19 @@ namespace CombatExtended.ExtendedLoadout
             }
         }
 
-        public static void SaveLoadoutId(AssignLink assignLink, Pawn pawn)
+        public static void SaveLoadoutId(object assignLink, Pawn pawn)
         {
             var loadoutMulti = pawn.GetLoadout() as Loadout_Multi;
             var columns = loadoutMulti.Loadouts.Select(x => x.uniqueID).ToList();
             BPC_AssignLink_Manager.AddColumnsIds(assignLink, columns);
         }
 
-        public static void AssignLink_ExposeData_Postfix(AssignLink __instance)
+        public static void AssignLink_ExposeData_Postfix(object __instance)
         {
             BPC_AssignLink_Manager.ExposeData(__instance);
         }
 
-        public static void AssignLink_Ctor(AssignLink __instance, int zone, Pawn colonist, Outfit outfit, FoodRestriction foodPolicy, DrugPolicy drugPolicy, HostilityResponseMode hostilityResponse, int loadoutId, int mapId)
+        public static void AssignLink_Ctor(object __instance, int zone, Pawn colonist, Outfit outfit, FoodRestriction foodPolicy, DrugPolicy drugPolicy, HostilityResponseMode hostilityResponse, int loadoutId, int mapId)
         {
             DbgLog.Msg($"AssignLink_Ctor => {__instance}");
             SaveLoadoutId(__instance, colonist);
