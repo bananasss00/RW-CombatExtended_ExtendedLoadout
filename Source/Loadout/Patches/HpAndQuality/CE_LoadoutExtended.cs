@@ -21,7 +21,7 @@ namespace CombatExtended.ExtendedLoadout
 
         [HarmonyPostfix]
         [UsedImplicitly]
-        public static void Loadout_ExposeData_Postfix(Loadout __instance)
+        private static void Loadout_ExposeData_Postfix(Loadout __instance)
         {
             var ceLoadoutExtended = LoadoutExtended(__instance);
             Scribe_Values.Look(ref ceLoadoutExtended.HpRange, "hpRange", FloatRange.ZeroToOne);
@@ -38,6 +38,14 @@ namespace CombatExtended.ExtendedLoadout
             }
             DebugLog();
             return result;
+        }
+
+        public static void CopyLoadoutExtended(Loadout from, Loadout to)
+        {
+            var src = LoadoutExtended(from);
+            var dest = LoadoutExtended(to);
+            dest.HpRange = src.HpRange;
+            dest.QualityRange = src.QualityRange;
         }
 
         public static void ClearData()

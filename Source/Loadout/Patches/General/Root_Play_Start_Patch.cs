@@ -7,7 +7,7 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch(typeof(Root_Play), nameof(Root_Play.Start))]
     public class Root_Play_Start_Patch
     {
-        static bool Prepare() => ConfigDefOf.Config.useMultiLoadouts;
+        static bool Prepare() => ConfigDefOf.Config.useMultiLoadouts || ConfigDefOf.Config.useHpAndQualityInLoadouts;
 
         [HarmonyPrefix]
         [UsedImplicitly]
