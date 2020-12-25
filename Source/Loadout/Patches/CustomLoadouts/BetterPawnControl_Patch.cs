@@ -87,11 +87,13 @@ namespace CombatExtended.ExtendedLoadout
                     typeof(int), typeof(Pawn), typeof(Outfit), typeof(FoodRestriction), typeof(DrugPolicy),
                     typeof(HostilityResponseMode), typeof(int), typeof(int)
                 });
+            var worldDataStoreExposeData = AccessTools.Method(typeof(DataStorage.WorldDataStore), nameof(DataStorage.WorldDataStore.ExposeData));
             var assignLinkExposeData = AccessTools.Method(typeof(AssignLink), nameof(AssignLink.ExposeData));
             var saveCurrentState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.SaveCurrentState));
             var loadState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.LoadState), new [] {typeof(List<AssignLink>), typeof(List<Pawn>), typeof(Policy)});
 
             h.Patch(assignLinkCtor, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_Ctor)));
+            h.Patch(worldDataStoreExposeData, postfix: new HarmonyMethod(typeof(BPC), nameof(WorldDataStore_ExposeData_Postfix)));
             h.Patch(assignLinkExposeData, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_ExposeData_Postfix)));
             h.Patch(saveCurrentState, transpiler: new HarmonyMethod(typeof(BPC), nameof(BetterPawnControl_AssignManager_SaveCurrentState)));
             h.Patch(loadState, transpiler: new HarmonyMethod(typeof(BPC), nameof(BetterPawnControl_AssignManager_LoadState)));
@@ -116,6 +118,38 @@ namespace CombatExtended.ExtendedLoadout
             var loadoutMulti = pawn.GetLoadout() as Loadout_Multi;
             var columns = loadoutMulti.Loadouts.Select(x => x.uniqueID).ToList();
             BPC_AssignLink_Manager.AddColumnsIds(assignLink, columns);
+        }
+
+        public class AssignLinkComparer : EqualityComparer<object>
+        {
+            public override bool Equals(object _x, object _y)
+            {
+                var x = (AssignLink) _x;
+                var y = (AssignLink) _y;
+                return x.zone == y.zone && x.colonist == y.colonist && x.mapId == y.mapId;
+            }
+
+            public override int GetHashCode(object o)
+            {
+                var obj = (AssignLink) o;
+                return obj.zone * 1 + obj.colonist.thingIDNumber * 2 + obj.mapId * 3;
+            }
+        }
+
+        // Fix BPC AssignLink list when have dublicated records for some reasons
+        public static void WorldDataStore_ExposeData_Postfix()
+        {
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                int beforeCount = Manager<AssignLink>.links.Count;
+                Manager<AssignLink>.links = Manager<AssignLink>.links.Distinct(new AssignLinkComparer()).Cast<AssignLink>().ToList();
+                int afterCount = Manager<AssignLink>.links.Count;
+                int delta = beforeCount - afterCount;
+                if (delta != 0)
+                {
+                    Log.Warning($"[CombatExtended.ExtendedLoadout] Removed dublicated BPC:AssignLink's: {delta}");
+                }
+            }
         }
 
         public static void AssignLink_ExposeData_Postfix(object __instance)

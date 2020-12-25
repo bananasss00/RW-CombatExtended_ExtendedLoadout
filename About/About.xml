@@ -42,8 +42,7 @@ This mod compatible with BetterPawnControl
 		<li>
 			<packageId>CETeam.CombatExtended</packageId>
 			<displayName>Combat Extended</displayName>
-			<steamWorkshopUrl> </steamWorkshopUrl>
-			<downloadUrl> </downloadUrl>
+			<downloadUrl>https://github.com/CombatExtended-Continued/CombatExtended</downloadUrl>
 		</li>
 	</modDependencies>
 	<loadAfter>
