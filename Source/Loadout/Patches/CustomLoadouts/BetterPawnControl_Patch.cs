@@ -60,6 +60,8 @@ namespace CombatExtended.ExtendedLoadout
                     DbgLog.Wrn($"[ExtendedLoadout][PostLoadInit] columns = null");
                     columns = new List<int>();
                 }
+
+                // fix changes in columns count
                 int sizeDelta = Loadout_Multi.ColumnsCount - columns.Count;
                 if (sizeDelta > 0)
                 {
@@ -72,6 +74,14 @@ namespace CombatExtended.ExtendedLoadout
                     Log.Warning($"[BPC_AssignLink_Manager] Fix loadouts list. Count difference: {sizeDelta}");
                     for (int i = 0; i < Math.Abs(sizeDelta); i++) columns.RemoveAt(columns.Count - 1);
                     LoadoutIds[instance] = columns;
+                }
+
+                // fix AssignLink.loadoutId field in case the mod is disabled in the future or useMultiLoadouts=false in config
+                {
+                    // set default value for loadoutId = first column from loadoutMulti
+                    // because if user disable multi loadouts from config or disable this mod
+                    // assigntab can't be opened anymore (0 not existing id)
+                    (instance as AssignLink).loadoutId = columns[0];
                 }
             }
         }
