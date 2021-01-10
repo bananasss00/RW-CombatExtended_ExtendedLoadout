@@ -9,9 +9,9 @@ namespace CombatExtended.ExtendedLoadout
 
         [HarmonyPatch(nameof(LoadoutManager.ExposeData))]
         [HarmonyPostfix]
-        public static void ExposeData()
+        public static void ExposeData(LoadoutManager __instance)
         {
-            LoadoutMulti_Manager.ExposeData();
+            LoadoutMulti_Manager.ExposeData(__instance);
         }
     }
 }

@@ -11,13 +11,26 @@ namespace CombatExtended.ExtendedLoadout
         private static List<Loadout_Multi> valuesWorkingList;
         private static Dictionary<Pawn, Loadout_Multi> assignedLoadoutsMulti = new Dictionary<Pawn, Loadout_Multi>();
 
-        public static void ExposeData()
+        public static void ExposeData(LoadoutManager __instance)
         {
             Scribe_Collections.Look(ref assignedLoadoutsMulti, "assignedLoadoutsMulti", LookMode.Reference, LookMode.Deep, ref keysWorkingList, ref valuesWorkingList);
             
             // fix for old saves
             if (Scribe.mode == LoadSaveMode.PostLoadInit && assignedLoadoutsMulti == null)
+            {
                 assignedLoadoutsMulti = new Dictionary<Pawn, Loadout_Multi>();
+
+                // assign CE loadouts
+                if (__instance._assignedLoadouts?.Any() ?? false)
+                {
+                    foreach (var kv in __instance._assignedLoadouts)
+                    {
+                        SetLoadout(kv.Key, kv.Value, 0);
+                    }
+                    //__instance._assignedLoadouts.Clear();
+                    DbgLog.Wrn($"LoadoutMulti_Manager ExposeData: moved assignmentLoadouts to assignedLoadoutsMulti");
+                }
+            }
 
             DbgLog.Msg($"LoadoutMulti_Manager ExposeData");
         }
