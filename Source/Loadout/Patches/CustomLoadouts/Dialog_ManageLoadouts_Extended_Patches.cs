@@ -30,7 +30,9 @@ namespace CombatExtended.ExtendedLoadout
             int i = 0;
             foreach (var ci in instructions)
             {
+#pragma warning disable 252,253
                 if (ci.opcode == OpCodes.Newobj && ci.operand == dialog_ManageLoadoutsCtor)
+#pragma warning restore 252,253
                 {
                     yield return new CodeInstruction(OpCodes.Newobj, dialog_ManageLoadouts_ExtendedCtor);
                     i++;

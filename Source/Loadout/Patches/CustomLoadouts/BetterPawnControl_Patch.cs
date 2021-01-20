@@ -205,7 +205,9 @@ namespace CombatExtended.ExtendedLoadout
             {
                 if (code[i].opcode == OpCodes.Brfalse_S)
                 {
+#pragma warning disable 252,253
                     if (code[i + 1].opcode == OpCodes.Ldloc_3 && (code[i + 4].opcode == OpCodes.Call && code[i + 4].operand == setLoadoutById))
+#pragma warning restore 252,253
                     {
                         fixedSetLoadoutId++;
                         yield return code[i++]; // 82	010B	brfalse.s	87 (011A) ldloca.s V_4 (4)
@@ -255,7 +257,9 @@ namespace CombatExtended.ExtendedLoadout
             {
                 if (code[i].opcode == OpCodes.Brfalse || code[i].opcode == OpCodes.Brfalse_S)
                 {
+#pragma warning disable 252,253
                     if (code[i + 1].opcode == OpCodes.Ldloc_3 && (code[i + 4].opcode == OpCodes.Call && code[i + 4].operand == getLoadoutId))
+#pragma warning restore 252,253
                     {
                         fixedGetLoadoutId++;
                         yield return code[i++]; // 52	00B3	brfalse
@@ -266,7 +270,9 @@ namespace CombatExtended.ExtendedLoadout
                         i++; // skip: stfld	int32 BetterPawnControl.AssignLink::loadoutId
                         continue;
                     }
+#pragma warning disable 252,253
                     else if (code[i + 1].opcode == OpCodes.Ldloc_2 && (code[i + 3].opcode == OpCodes.Call && code[i + 3].operand == getLoadoutId))
+#pragma warning restore 252,253
                     {
                         fixedGetLoadoutId++;
                         yield return code[i++]; // 62	00D6	brfalse.s

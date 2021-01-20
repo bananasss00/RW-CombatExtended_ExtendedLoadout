@@ -32,7 +32,9 @@ namespace CombatExtended.ExtendedLoadout
                     yield return ci;
                     heightFixed = true;
                 }
+#pragma warning disable 252,253
                 else if (heightFixed && !drawHpQualityInjected && ci.opcode == OpCodes.Call && ci.operand == drawSlotList)
+#pragma warning restore 252,253
                 {
                     // draw after DrawSlotList(slotListRect);
                     yield return ci;

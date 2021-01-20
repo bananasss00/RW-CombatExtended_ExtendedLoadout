@@ -39,7 +39,9 @@ namespace CombatExtended.ExtendedLoadout
             var setLoadout = AccessTools.Method(typeof(Utility_Loadouts), nameof(Utility_Loadouts.SetLoadout));
             var setLoadoutNew = AccessTools.Method(typeof(LoadoutMulti_Manager), nameof(LoadoutMulti_Manager.SetLoadout));
 
+#pragma warning disable 252,253
             int setLoadoutReplaceIdx = code.FindIndex(c => c.opcode == OpCodes.Call && c.operand == setLoadout);
+#pragma warning restore 252,253
             if (setLoadoutReplaceIdx == -1)
             {
                 Log.Error($"Can't find SetLoadout in ITab_Inventory.FillTab");
@@ -57,7 +59,9 @@ namespace CombatExtended.ExtendedLoadout
                   // call CombatExtended.ITab_Inventory::get_SelPawnForGear()
                   code[setLoadoutReplaceIdx + 3].opcode == OpCodes.Call &&
                   // call  CombatExtended.Utility_Loadouts::GetLoadout(class ['Assembly-CSharp']Verse.Pawn)
+#pragma warning disable 252,253
                   code[setLoadoutReplaceIdx + 4].opcode == OpCodes.Call && code[setLoadoutReplaceIdx + 4].operand == getLoadout))
+#pragma warning restore 252,253
             {
                 Log.Error($"Outdated transpiler ITab_Inventory.FillTab");
                 return instructions;
