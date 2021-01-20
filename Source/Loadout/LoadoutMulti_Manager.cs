@@ -35,6 +35,8 @@ namespace CombatExtended.ExtendedLoadout
             DbgLog.Msg($"LoadoutMulti_Manager ExposeData");
         }
 
+        public static IEnumerable<Loadout_Multi> LoadoutsMulti => assignedLoadoutsMulti.Values;
+
         public static void ClearData()
         {
             assignedLoadoutsMulti.Clear();

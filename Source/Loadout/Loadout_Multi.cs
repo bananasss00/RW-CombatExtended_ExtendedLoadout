@@ -21,6 +21,7 @@ namespace CombatExtended.ExtendedLoadout
         public Loadout_Multi()
         {
             _loadouts = Enumerable.Repeat(LoadoutManager.DefaultLoadout, ColumnsCount).ToList();
+            NotifyLoadoutChanged();
             uniqueID = LoadoutMulti_Manager.GetUniqueLoadoutID();
         }
 
@@ -32,8 +33,17 @@ namespace CombatExtended.ExtendedLoadout
             set
             {
                 _loadouts[index] = value;
-                Slots = _loadouts.Where(x => x != null).SelectMany(x => x.Slots).ToList();
+                NotifyLoadoutChanged();
             }
+        }
+
+        /// <summary>
+        /// Update Slots cache
+        /// </summary>
+        public void NotifyLoadoutChanged()
+        {
+            Slots = _loadouts.Where(x => x != null).SelectMany(x => x.Slots).ToList();
+            DbgLog.Msg("Loadout_Multi.NotifyLoadoutChanged");
         }
 
         public new string GetUniqueLoadID()
@@ -58,6 +68,7 @@ namespace CombatExtended.ExtendedLoadout
                     Log.Warning($"[Loadout_Multi] Fix loadouts list. Count difference: {sizeDelta}");
                     for (int i = 0; i < Math.Abs(sizeDelta); i++) _loadouts.RemoveAt(_loadouts.Count - 1);
                 }
+                NotifyLoadoutChanged();
             }
         }
 

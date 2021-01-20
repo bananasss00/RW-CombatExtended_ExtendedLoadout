@@ -142,7 +142,7 @@ namespace CombatExtended.ExtendedLoadout
             //changed: if (Widgets.ButtonText(assignTabRect, "AssignTabEdit".Translate(), true, false, true))
             if (Widgets.ButtonImage(assignTabRect, EditImage))
             {
-                Find.WindowStack.Add(new Dialog_ManageLoadouts((pawn.GetLoadout() as Loadout_Multi)[index]));
+                Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended((pawn.GetLoadout() as Loadout_Multi)[index]));
             }
             // Added this next line.
             TooltipHandler.TipRegion(assignTabRect, new TipSignal(textGetter("CE_Loadouts"), pawn.GetHashCode() * 613));
