@@ -6,7 +6,7 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch(typeof(Loadout))]
     public static class LoadoutProxy_Patch
     {
-        static bool Prepare() => ConfigDefOf.Config.useMultiLoadouts;
+        static bool Prepare() => ExtendedLoadoutMod.Instance.useMultiLoadouts;
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(Loadout.SlotCount), MethodType.Getter)]

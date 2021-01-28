@@ -12,7 +12,7 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch(typeof(ITab_Inventory))]
     public static class ITab_Inventory_Patch
     {
-        static bool Prepare() => ConfigDefOf.Config.useMultiLoadouts;
+        static bool Prepare() => ExtendedLoadoutMod.Instance.useMultiLoadouts;
 
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(ITab_Inventory.FillTab))]

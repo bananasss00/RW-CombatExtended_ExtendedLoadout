@@ -5,7 +5,7 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch(typeof(LoadoutManager))]
     public static class LoadoutManager_ExposeData_Patch
     {
-        static bool Prepare() => ConfigDefOf.Config.useMultiLoadouts;
+        static bool Prepare() => ExtendedLoadoutMod.Instance.useMultiLoadouts;
 
         [HarmonyPatch(nameof(LoadoutManager.ExposeData))]
         [HarmonyPostfix]

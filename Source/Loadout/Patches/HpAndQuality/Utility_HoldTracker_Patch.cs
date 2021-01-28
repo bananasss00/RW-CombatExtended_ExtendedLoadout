@@ -13,7 +13,7 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch(typeof(Utility_HoldTracker))]
     public class Utility_HoldTracker_Patch
     {
-        static bool Prepare() => ConfigDefOf.Config.useHpAndQualityInLoadouts;
+        static bool Prepare() => ExtendedLoadoutMod.Instance.useHpAndQualityInLoadouts;
 
         /// <summary>
         /// Drop only 1 weapon per tick, if original false

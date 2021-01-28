@@ -6,7 +6,7 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch(typeof(Loadout))]
     public static class Loadout_Patch
     {
-        static bool Prepare() => ConfigDefOf.Config.useHpAndQualityInLoadouts;
+        static bool Prepare() => ExtendedLoadoutMod.Instance.useHpAndQualityInLoadouts;
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(Loadout.Copy), typeof(Loadout))]

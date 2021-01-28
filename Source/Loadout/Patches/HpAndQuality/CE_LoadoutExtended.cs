@@ -10,7 +10,7 @@ namespace CombatExtended.ExtendedLoadout
     [HarmonyPatch(typeof(Loadout), nameof(Loadout.ExposeData))]
     public class CE_LoadoutExtended
     {
-        static bool Prepare() => ConfigDefOf.Config.useHpAndQualityInLoadouts;
+        static bool Prepare() => ExtendedLoadoutMod.Instance.useHpAndQualityInLoadouts;
 
         private static int _ticks;
         private static readonly Dictionary<Loadout, CE_LoadoutExtended> Loadouts = new Dictionary<Loadout, CE_LoadoutExtended>();
