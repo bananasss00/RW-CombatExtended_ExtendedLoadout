@@ -57,6 +57,7 @@ namespace CombatExtended.ExtendedLoadout
             Scribe_Collections.Look(ref _loadouts, "loadouts", LookMode.Reference);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
+                // fix changed columns count
                 int sizeDelta = ColumnsCount - _loadouts.Count;
                 if (sizeDelta > 0)
                 {
@@ -67,6 +68,15 @@ namespace CombatExtended.ExtendedLoadout
                 {
                     Log.Warning($"[Loadout_Multi] Fix loadouts list. Count difference: {sizeDelta}");
                     for (int i = 0; i < Math.Abs(sizeDelta); i++) _loadouts.RemoveAt(_loadouts.Count - 1);
+                }
+                // fix removed loadouts
+                for (int i = 0; i < _loadouts.Count; i++)
+                {
+                    if (_loadouts[i] == null)
+                    {
+                        Log.Warning($"[Loadout_Multi] Fix removed loadout id: {uniqueID}");
+                        _loadouts[i] = LoadoutManager.DefaultLoadout;
+                    }
                 }
                 NotifyLoadoutChanged();
             }

@@ -35,6 +35,26 @@ namespace CombatExtended.ExtendedLoadout
             DbgLog.Msg($"LoadoutMulti_Manager ExposeData");
         }
 
+        /// <summary>
+        /// Clear removed loadout from all pawns
+        /// </summary>
+        /// <param name="loadout"></param>
+        public static void RemoveLoadout(Loadout loadout)
+        {
+            foreach (var loadoutMulti in assignedLoadoutsMulti.Values)
+            {
+                var loadouts = loadoutMulti.Loadouts;
+                for (int i = 0; i < loadouts.Count; i++)
+                {
+                    if (loadouts[i] == loadout)
+                    {
+                        loadouts[i] = LoadoutManager.DefaultLoadout;
+                        DbgLog.Msg($"LoadoutMulti_Manager RemoveLoadout: remove loadout {loadout.LabelCap}");
+                    }
+                }
+            }
+        }
+
         public static IEnumerable<Loadout_Multi> LoadoutsMulti => assignedLoadoutsMulti.Values;
 
         public static void ClearData()

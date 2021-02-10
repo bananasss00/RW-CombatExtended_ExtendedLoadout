@@ -74,7 +74,7 @@
     <Compile Include="Loadout\LoadoutMulti_Manager.cs" />
     <Compile Include="Loadout\Patches\CustomLoadouts\BetterPawnControl_Patch.cs" />
     <Compile Include="Loadout\Patches\CustomLoadouts\Dialog_ManageLoadouts_Extended_Patches.cs" />
-    <Compile Include="Loadout\Patches\CustomLoadouts\LoadoutManager_ExposeData_Patch.cs" />
+    <Compile Include="Loadout\Patches\CustomLoadouts\LoadoutManager_Patch.cs" />
     <Compile Include="Loadout\Patches\CustomLoadouts\ITab_Inventory_Patch.cs" />
     <Compile Include="Loadout\Patches\HpAndQuality\Loadout_Patch.cs" />
     <Compile Include="Loadout\Patches\CustomLoadouts\LoadoutProxy_Patch.cs" />
