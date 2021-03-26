@@ -59,6 +59,16 @@ namespace CombatExtended.ExtendedLoadout
             if (useMultiLoadouts && ModActive.BetterPawnControl)
                 BPC.Patch(h);
             h.PatchAll();
+
+            /**
+             * Fix for mod: Rim of Madness - Vampires
+             * After added postfix from vapires on method JobGiver_UpdateLoadout:TryGiveJob
+             * JIT inline loadout.Slots in this method???
+             * 
+             * operation Harmony::Unpatch or Harmony::Patch prevent inlining!
+             * h.Unpatch(AccessTools.Method("CombatExtended.JobGiver_UpdateLoadout:TryGiveJob"), HarmonyPatchType.All, "some.random.string");
+             */
+            h.Unpatch(AccessTools.Method("CombatExtended.JobGiver_UpdateLoadout:TryGiveJob"), HarmonyPatchType.All, "some.random.string");
             Log.Message("[CombatExtended.ExtendedLoadout] Initialized");
         }
 
