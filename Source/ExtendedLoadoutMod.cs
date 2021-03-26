@@ -11,6 +11,21 @@ using Verse;
 
 namespace CombatExtended.ExtendedLoadout
 {
+    [StaticConstructorOnStartup]
+    public static class EarlyInit
+    {
+        static EarlyInit()
+        {
+            /*
+             * Fix for mod: Rim of Madness - Vampires
+             * After added postfix from vampires on method JobGiver_UpdateLoadout:TryGiveJob
+             * 
+             * Need to patch it first, before other mods patch the methods where Loadout::Slots is used
+             */
+            LoadoutProxy_Patch.Patch();
+        }
+    }
+
     public class ExtendedLoadoutMod : ModBase
     {
         public static ExtendedLoadoutMod Instance;
@@ -20,6 +35,11 @@ namespace CombatExtended.ExtendedLoadout
         protected override bool HarmonyAutoPatch => false;
 
         private ModSettingsPack modSettingsPack;
+
+        public static readonly string HarmonyId = "PirateBY.CombatExtended.ExtendedLoadout";
+        public static Harmony Harmony => _harmony ?? (_harmony = new Harmony(HarmonyId));
+
+        private static Harmony _harmony;
 
         public ExtendedLoadoutMod()
         {
@@ -55,20 +75,13 @@ namespace CombatExtended.ExtendedLoadout
             }
 
             // apply patches
-            var h = new Harmony("PirateBY.CombatExtended.ExtendedLoadout");
             if (useMultiLoadouts && ModActive.BetterPawnControl)
-                BPC.Patch(h);
-            h.PatchAll();
+                BPC.Patch(Harmony);
+            Harmony.PatchAll();
 
-            /**
-             * Fix for mod: Rim of Madness - Vampires
-             * After added postfix from vapires on method JobGiver_UpdateLoadout:TryGiveJob
-             * JIT inline loadout.Slots in this method???
-             * 
-             * operation Harmony::Unpatch or Harmony::Patch prevent inlining!
-             * h.Unpatch(AccessTools.Method("CombatExtended.JobGiver_UpdateLoadout:TryGiveJob"), HarmonyPatchType.All, "some.random.string");
-             */
-            h.Unpatch(AccessTools.Method("CombatExtended.JobGiver_UpdateLoadout:TryGiveJob"), HarmonyPatchType.All, "some.random.string");
+            if (!useMultiLoadouts) // disable unused patch
+                LoadoutProxy_Patch.Unpatch();
+
             Log.Message("[CombatExtended.ExtendedLoadout] Initialized");
         }
 

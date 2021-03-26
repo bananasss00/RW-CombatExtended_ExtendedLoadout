@@ -3,10 +3,22 @@ using HarmonyLib;
 
 namespace CombatExtended.ExtendedLoadout
 {
-    [HarmonyPatch(typeof(Loadout))]
+    //[HarmonyPatch(typeof(Loadout))]
     public static class LoadoutProxy_Patch
     {
         static bool Prepare() => ExtendedLoadoutMod.Instance.useMultiLoadouts;
+
+        public static void Patch()
+        {
+            ExtendedLoadoutMod.Harmony.Patch(AccessTools.PropertyGetter(typeof(Loadout), nameof(Loadout.SlotCount)), prefix: new HarmonyMethod(typeof(LoadoutProxy_Patch), nameof(SlotCount)));
+            ExtendedLoadoutMod.Harmony.Patch(AccessTools.PropertyGetter(typeof(Loadout), nameof(Loadout.Slots)), prefix: new HarmonyMethod(typeof(LoadoutProxy_Patch), nameof(Slots)));
+        }
+
+        public static void Unpatch()
+        {
+            ExtendedLoadoutMod.Harmony.Unpatch(AccessTools.PropertyGetter(typeof(Loadout), nameof(Loadout.SlotCount)), HarmonyPatchType.Prefix, ExtendedLoadoutMod.HarmonyId);
+            ExtendedLoadoutMod.Harmony.Unpatch(AccessTools.PropertyGetter(typeof(Loadout), nameof(Loadout.Slots)), HarmonyPatchType.Prefix, ExtendedLoadoutMod.HarmonyId);
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(Loadout.SlotCount), MethodType.Getter)]
