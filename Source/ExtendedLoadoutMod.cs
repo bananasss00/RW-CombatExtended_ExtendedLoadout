@@ -29,12 +29,16 @@ namespace CombatExtended.ExtendedLoadout
     public class ExtendedLoadoutMod : ModBase
     {
         public static ExtendedLoadoutMod Instance;
+
+        public const int MaxColumnCount = 10;
+
         // indicate need patches or not
         public bool useMultiLoadouts, useHpAndQualityInLoadouts;
 
         protected override bool HarmonyAutoPatch => false;
 
         private ModSettingsPack modSettingsPack;
+        private SettingHandle<string>[] loadoutNames = new SettingHandle<string>[MaxColumnCount];
 
         public static readonly string HarmonyId = "PirateBY.CombatExtended.ExtendedLoadout";
         public static Harmony Harmony => _harmony ?? (_harmony = new Harmony(HarmonyId));
@@ -57,9 +61,30 @@ namespace CombatExtended.ExtendedLoadout
             var MultiLoadoutsCount = modSettingsPack.GetHandle($"MultiLoadoutsCount", "Settings.MultiLoadoutsCount.Label".Translate(), "Settings.MultiLoadoutsCount.Desc".Translate(), 3, value => int.TryParse(value, out int num) && num >= 2 && num <= 10);
                 MultiLoadoutsCount.VisibilityPredicate = () => UseMultiLoadouts;
 
+            // column names settings
+            for (int i = 0; i < MaxColumnCount; i++)
+            {
+                int colId = i;
+                loadoutNames[i] = modSettingsPack.GetHandle($"LoadoutName_{i}", $"Loadout{i + 1}".Translate(), "", $"Loadout{i + 1}".Translate().RawText);
+                
+                loadoutNames[i].VisibilityPredicate = () => UseMultiLoadouts && colId < MultiLoadoutsCount;
+                
+                loadoutNames[i].OnValueChanged = value =>
+                {
+                    var assign = DefDatabase<PawnTableDef>.GetNamed("Assign");
+                    var loadoutColumn = assign.columns.FirstOrDefault(c => c.defName.Equals($"Loadout_{colId}"));
+                    if (loadoutColumn != null)
+                    {
+                        loadoutColumn.label = loadoutNames[colId].Value;
+                        loadoutColumn.cachedLabelCap = null; // reset LabelCap cache
+                        DbgLog.Msg($"Changed column name[{colId}]: {loadoutNames[colId]}");
+                    }
+                };
+            }
+
             // inject columns and set settings  
             useHpAndQualityInLoadouts = UseHpAndQualityInLoadouts;
-            if (UseMultiLoadouts && MultiLoadoutsCount >= 2 && MultiLoadoutsCount <= 10)
+            if (UseMultiLoadouts && MultiLoadoutsCount >= 2 && MultiLoadoutsCount <= MaxColumnCount)
             {
                 var assign = DefDatabase<PawnTableDef>.GetNamed("Assign");
                 var pawnColumnDefs = assign.columns;
@@ -92,7 +117,7 @@ namespace CombatExtended.ExtendedLoadout
                 {
                     defName = $"Loadout_{i}",
                     workerClass = typeof(PawnColumnWorker_Loadout_Multi),
-                    label = $"Loadout{i + 1}".Translate(),
+                    label = loadoutNames[i],
                     sortable = true
                 };
         }
