@@ -55,11 +55,11 @@ namespace CombatExtended.ExtendedLoadout
             code[setLoadoutReplaceIdx].operand = setLoadoutNew;
 
             if (!(// ldarg.0
-                  code[setLoadoutReplaceIdx + 2].opcode == OpCodes.Ldarg_0 && 
+                  code[setLoadoutReplaceIdx + 2].opcode == OpCodes.Ldarg_0 &&
                   // call CombatExtended.ITab_Inventory::get_SelPawnForGear()
                   code[setLoadoutReplaceIdx + 3].opcode == OpCodes.Call &&
                   // call  CombatExtended.Utility_Loadouts::GetLoadout(class ['Assembly-CSharp']Verse.Pawn)
-#pragma warning disable 252,253
+#pragma warning disable 252, 253
                   code[setLoadoutReplaceIdx + 4].opcode == OpCodes.Call && code[setLoadoutReplaceIdx + 4].operand == getLoadout))
 #pragma warning restore 252,253
             {

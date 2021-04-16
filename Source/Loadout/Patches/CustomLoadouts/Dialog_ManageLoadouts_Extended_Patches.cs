@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -24,8 +23,8 @@ namespace CombatExtended.ExtendedLoadout
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> CtorReplacer_Transpiler(MethodBase __originalMethod, IEnumerable<CodeInstruction> instructions)
         {
-            var dialog_ManageLoadoutsCtor = AccessTools.Constructor(typeof(Dialog_ManageLoadouts), new[] {typeof(Loadout)});
-            var dialog_ManageLoadouts_ExtendedCtor = AccessTools.Constructor(typeof(Dialog_ManageLoadouts_Extended), new[] {typeof(Loadout)});
+            var dialog_ManageLoadoutsCtor = AccessTools.Constructor(typeof(Dialog_ManageLoadouts), new[] { typeof(Loadout) });
+            var dialog_ManageLoadouts_ExtendedCtor = AccessTools.Constructor(typeof(Dialog_ManageLoadouts_Extended), new[] { typeof(Loadout) });
 
             int i = 0;
             foreach (var ci in instructions)

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using HugsLib;
 using HugsLib.Settings;
-using JetBrains.Annotations;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace CombatExtended.ExtendedLoadout
@@ -28,7 +25,9 @@ namespace CombatExtended.ExtendedLoadout
 
     public class ExtendedLoadoutMod : ModBase
     {
+        #pragma warning disable CS8618
         public static ExtendedLoadoutMod Instance;
+        #pragma warning restore CS8618
 
         public const int MaxColumnCount = 10;
 
@@ -37,13 +36,12 @@ namespace CombatExtended.ExtendedLoadout
 
         protected override bool HarmonyAutoPatch => false;
 
-        private ModSettingsPack modSettingsPack;
-        private SettingHandle<string>[] loadoutNames = new SettingHandle<string>[MaxColumnCount];
+        private readonly SettingHandle<string>[] loadoutNames = new SettingHandle<string>[MaxColumnCount];
 
         public static readonly string HarmonyId = "PirateBY.CombatExtended.ExtendedLoadout";
-        public static Harmony Harmony => _harmony ?? (_harmony = new Harmony(HarmonyId));
+        public static Harmony Harmony => _harmony ??= new Harmony(HarmonyId);
 
-        private static Harmony _harmony;
+        private static Harmony? _harmony;
 
         public ExtendedLoadoutMod()
         {
@@ -55,21 +53,21 @@ namespace CombatExtended.ExtendedLoadout
         public override void DefsLoaded()
         {
             // init settings
-            modSettingsPack = HugsLibController.Instance.Settings.GetModSettings("CombatExtended.ExtendedLoadout");
+            var modSettingsPack = HugsLibController.Instance.Settings.GetModSettings("CombatExtended.ExtendedLoadout");
             var UseHpAndQualityInLoadouts = modSettingsPack.GetHandle($"UseHpAndQualityInLoadouts", "Settings.UseHpAndQualityInLoadouts.Label".Translate(), "Settings.UseHpAndQualityInLoadouts.Desc".Translate(), true);
             var UseMultiLoadouts = modSettingsPack.GetHandle($"UseMultiLoadouts", "Settings.UseMultiLoadouts.Label".Translate(), "Settings.UseMultiLoadouts.Desc".Translate(), true);
-            var MultiLoadoutsCount = modSettingsPack.GetHandle($"MultiLoadoutsCount", "Settings.MultiLoadoutsCount.Label".Translate(), "Settings.MultiLoadoutsCount.Desc".Translate(), 3, value => int.TryParse(value, out int num) && num >= 2 && num <= 10);
-                MultiLoadoutsCount.VisibilityPredicate = () => UseMultiLoadouts;
+            var MultiLoadoutsCount = modSettingsPack.GetHandle($"MultiLoadoutsCount", "Settings.MultiLoadoutsCount.Label".Translate(), "Settings.MultiLoadoutsCount.Desc".Translate(), 3, value => int.TryParse(value, out int num) && num is >= 2 and <= 10);
+            MultiLoadoutsCount.VisibilityPredicate = () => UseMultiLoadouts;
 
             // column names settings
             for (int i = 0; i < MaxColumnCount; i++)
             {
                 int colId = i;
                 loadoutNames[i] = modSettingsPack.GetHandle($"LoadoutName_{i}", $"Loadout{i + 1}".Translate(), "", $"Loadout{i + 1}".Translate().RawText);
-                
+
                 loadoutNames[i].VisibilityPredicate = () => UseMultiLoadouts && colId < MultiLoadoutsCount;
-                
-                loadoutNames[i].OnValueChanged = value =>
+
+                loadoutNames[i].OnValueChanged = _ =>
                 {
                     var assign = DefDatabase<PawnTableDef>.GetNamed("Assign");
                     var loadoutColumn = assign.columns.FirstOrDefault(c => c.defName.Equals($"Loadout_{colId}"));
@@ -96,16 +94,25 @@ namespace CombatExtended.ExtendedLoadout
                     Loadout_Multi.ColumnsCount = MultiLoadoutsCount;
                     useMultiLoadouts = true;
                     Log.Message($"[CombatExtended.ExtendedLoadout] {MultiLoadoutsCount}x Loadout columns injected");
-                } else Log.Error($"[CombatExtended.ExtendedLoadout] Can't find CE Loadout column");
+                }
+                else
+                {
+                    Log.Error($"[CombatExtended.ExtendedLoadout] Can't find CE Loadout column");
+                }
             }
 
             // apply patches
             if (useMultiLoadouts && ModActive.BetterPawnControl)
+            {
                 BPC.Patch(Harmony);
+            }
+
             Harmony.PatchAll();
 
             if (!useMultiLoadouts) // disable unused patch
+            {
                 LoadoutProxy_Patch.Unpatch();
+            }
 
             Log.Message("[CombatExtended.ExtendedLoadout] Initialized");
         }
@@ -113,6 +120,7 @@ namespace CombatExtended.ExtendedLoadout
         private IEnumerable<PawnColumnDef> GeneratePawnColumnDefs(int count)
         {
             for (int i = 0; i < count; i++)
+            {
                 yield return new PawnColumnDef()
                 {
                     defName = $"Loadout_{i}",
@@ -120,6 +128,7 @@ namespace CombatExtended.ExtendedLoadout
                     label = loadoutNames[i],
                     sortable = true
                 };
+            }
         }
     }
 }

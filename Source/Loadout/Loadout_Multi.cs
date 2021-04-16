@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace CombatExtended.ExtendedLoadout
@@ -14,8 +10,8 @@ namespace CombatExtended.ExtendedLoadout
         public static int ColumnsCount { get; set; }
 
         public new int uniqueID;
-        public new int SlotCount => Slots?.Count ?? 0;
-        public new List<LoadoutSlot> Slots { get; private set; }
+        public new int SlotCount => Slots.Count;
+        public new List<LoadoutSlot> Slots { get; private set; } = new();
         private List<Loadout> _loadouts;
 
         public Loadout_Multi()
@@ -26,7 +22,7 @@ namespace CombatExtended.ExtendedLoadout
         }
 
         public List<Loadout> Loadouts => _loadouts;
-        
+
         public Loadout this[int index]
         {
             get => _loadouts[index];
@@ -62,12 +58,18 @@ namespace CombatExtended.ExtendedLoadout
                 if (sizeDelta > 0)
                 {
                     Log.Warning($"[Loadout_Multi] Fix loadouts list. Count difference: {sizeDelta}");
-                    for (int i = 0; i < sizeDelta; i++) _loadouts.Add(LoadoutManager.DefaultLoadout);
+                    for (int i = 0; i < sizeDelta; i++)
+                    {
+                        _loadouts.Add(LoadoutManager.DefaultLoadout);
+                    }
                 }
                 else if (sizeDelta < 0)
                 {
                     Log.Warning($"[Loadout_Multi] Fix loadouts list. Count difference: {sizeDelta}");
-                    for (int i = 0; i < Math.Abs(sizeDelta); i++) _loadouts.RemoveAt(_loadouts.Count - 1);
+                    for (int i = 0; i < Math.Abs(sizeDelta); i++)
+                    {
+                        _loadouts.RemoveAt(_loadouts.Count - 1);
+                    }
                 }
                 // fix removed loadouts
                 for (int i = 0; i < _loadouts.Count; i++)
@@ -87,12 +89,17 @@ namespace CombatExtended.ExtendedLoadout
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public Loadout FindLoadoutWithThingDef(ThingDef t)
+        public Loadout? FindLoadoutWithThingDef(ThingDef t)
         {
             foreach (var loadout in _loadouts)
             {
                 foreach (var slot in loadout.Slots)
-                    if (slot.thingDef == t) return loadout;
+                {
+                    if (slot.thingDef == t)
+                    {
+                        return loadout;
+                    }
+                }
             }
             return null;
         }

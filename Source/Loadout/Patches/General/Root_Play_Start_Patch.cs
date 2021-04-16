@@ -13,10 +13,13 @@ namespace CombatExtended.ExtendedLoadout
         [UsedImplicitly]
         public static void OnNewGame()
         {
-            CE_LoadoutExtended.ClearData();
+            Loadout_Extended.CleaAllLoadoutsData();
             LoadoutMulti_Manager.ClearData();
             if (ModActive.BetterPawnControl)
+            {
                 BPC_AssignLink_Manager.ClearData();
+            }
+
             DbgLog.Msg($"Data cleaned on MapComponentsInitializing");
         }
     }

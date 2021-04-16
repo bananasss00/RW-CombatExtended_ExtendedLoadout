@@ -7,14 +7,18 @@ namespace CombatExtended.ExtendedLoadout
 {
     public static class LoadoutMulti_Manager
     {
+        #pragma warning disable CS8618
+        // used for exposing data in rimworld
         private static List<Pawn> keysWorkingList;
         private static List<Loadout_Multi> valuesWorkingList;
-        private static Dictionary<Pawn, Loadout_Multi> assignedLoadoutsMulti = new Dictionary<Pawn, Loadout_Multi>();
+        #pragma warning restore CS8618
+
+        private static Dictionary<Pawn, Loadout_Multi> assignedLoadoutsMulti = new();
 
         public static void ExposeData(LoadoutManager __instance)
         {
             Scribe_Collections.Look(ref assignedLoadoutsMulti, "assignedLoadoutsMulti", LookMode.Reference, LookMode.Deep, ref keysWorkingList, ref valuesWorkingList);
-            
+
             // fix for old saves
             if (Scribe.mode == LoadSaveMode.PostLoadInit && assignedLoadoutsMulti == null)
             {
@@ -65,9 +69,7 @@ namespace CombatExtended.ExtendedLoadout
         public static int GetUniqueLoadoutID()
         {
             var loadoutsMulti = assignedLoadoutsMulti.Values;
-            if (loadoutsMulti.Any())
-                return loadoutsMulti.Max(l => l.uniqueID) + 1;
-            return 1;
+            return loadoutsMulti.Any() ? loadoutsMulti.Max(l => l.uniqueID) + 1 : 1;
         }
 
         public static Loadout GetLoadout(Pawn pawn)
@@ -83,12 +85,18 @@ namespace CombatExtended.ExtendedLoadout
         public static void SetLoadout(this Pawn pawn, Loadout loadout, int index)
         {
             if (pawn == null)
-                throw new ArgumentNullException("pawn");
+            {
+                throw new ArgumentNullException(nameof(pawn));
+            }
 
             if (assignedLoadoutsMulti.ContainsKey(pawn))
+            {
                 assignedLoadoutsMulti[pawn][index] = loadout;
+            }
             else
-                assignedLoadoutsMulti.Add(pawn, new Loadout_Multi {[index] = loadout});
+            {
+                assignedLoadoutsMulti.Add(pawn, new Loadout_Multi { [index] = loadout });
+            }
         }
     }
 }

@@ -10,9 +10,7 @@ namespace CombatExtended.ExtendedLoadout
         {
             get
             {
-                if (_betterPawnControl == null)
-                    _betterPawnControl = ModLister.GetActiveModWithIdentifier("VouLT.BetterPawnControl") != null;
-                return (bool)_betterPawnControl;
+                return _betterPawnControl ??= ModLister.GetActiveModWithIdentifier("VouLT.BetterPawnControl") != null;
             }
         }
     }

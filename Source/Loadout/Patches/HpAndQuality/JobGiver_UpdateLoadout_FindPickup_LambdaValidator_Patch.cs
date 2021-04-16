@@ -38,7 +38,7 @@ namespace CombatExtended.ExtendedLoadout
               IL_0015:  call       bool ['Assembly-CSharp']RimWorld.ForbidUtility::IsForbidden(class ['Assembly-CSharp']Verse.Thing, class ['Assembly-CSharp']Verse.Pawn)
               IL_001a:  brtrue.s   IL_0043
              */
-            var isForbidden = AccessTools.Method(typeof(ForbidUtility), nameof(ForbidUtility.IsForbidden), new [] {typeof(Thing), typeof(Pawn)});
+            var isForbidden = AccessTools.Method(typeof(ForbidUtility), nameof(ForbidUtility.IsForbidden), new[] { typeof(Thing), typeof(Pawn) });
             var thisPawn = AccessTools.Field(AccessTools.Inner(typeof(JobGiver_UpdateLoadout), "<>c__DisplayClass6_0"), "pawn");
             var idx = code.FindIndex(ci => ci.Calls(isForbidden));
             if (idx == -1)
@@ -49,11 +49,11 @@ namespace CombatExtended.ExtendedLoadout
 
             idx += 2; // after brtrue.s
 
-            code.InsertRange(idx, new []
+            code.InsertRange(idx, new[]
             {
                 new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldfld, thisPawn), // pawn
                 new CodeInstruction(OpCodes.Ldarg_1), // thing
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch), nameof(AllowEquip))), 
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch), nameof(AllowEquip))),
                 new CodeInstruction(OpCodes.Brfalse_S, code[idx - 1].operand), // read exit label from brtrue.s
             });
 
@@ -64,19 +64,27 @@ namespace CombatExtended.ExtendedLoadout
 
         public static bool AllowEquip(Pawn p, Thing t)
         {
-            if (!t.def.IsWeapon) return true;
-            
+            if (!t.def.IsWeapon)
+            {
+                return true;
+            }
+
             var loadout = p.GetLoadout();
-            if (loadout == null) return true;
+            if (loadout == null)
+            {
+                return true;
+            }
 
             if (loadout is Loadout_Multi loadoutMulti)
             {
                 loadout = loadoutMulti.FindLoadoutWithThingDef(t.def);
-                if (loadout == null) return true;
+                if (loadout == null)
+                {
+                    return true;
+                }
             }
 
-            var ceLoadoutExtended = CE_LoadoutExtended.LoadoutExtended(loadout);
-            return ceLoadoutExtended.AllowEquip(t);
+            return loadout.Extended().Allows(t);
         }
     }
 }

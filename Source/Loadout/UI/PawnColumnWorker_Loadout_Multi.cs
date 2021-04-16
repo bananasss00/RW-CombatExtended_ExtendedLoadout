@@ -17,20 +17,19 @@ namespace CombatExtended.ExtendedLoadout
 
         protected IEnumerable<Widgets.DropdownMenuElement<Loadout>> Btn_GenerateMenu(Pawn pawn)
         {
-            using (List<Loadout>.Enumerator enu = LoadoutManager.Loadouts.GetEnumerator())
+            using List<Loadout>.Enumerator enu = LoadoutManager.Loadouts.GetEnumerator();
+            
+            while (enu.MoveNext())
             {
-                while (enu.MoveNext())
+                Loadout loadout = enu.Current;
+                yield return new Widgets.DropdownMenuElement<Loadout>
                 {
-                    Loadout loadout = enu.Current;
-                    yield return new Widgets.DropdownMenuElement<Loadout>
+                    option = new FloatMenuOption(loadout.LabelCap, delegate
                     {
-                        option = new FloatMenuOption(loadout.LabelCap, delegate ()
-                        {
-                            pawn.SetLoadout(loadout, GetIndexFromDefName(def.defName));
-                        }),
-                        payload = loadout
-                    };
-                }
+                        pawn.SetLoadout(loadout, GetIndexFromDefName(def.defName));
+                    }),
+                    payload = loadout
+                };
             }
         }
 
@@ -59,7 +58,7 @@ namespace CombatExtended.ExtendedLoadout
             else if (def.HeaderIcon != null)
             {
                 var headerIconSize = def.HeaderIconSize;
-                var num = (int) ((rect.width - headerIconSize.x) / 2f);
+                var num = (int)((rect.width - headerIconSize.x) / 2f);
                 GUI.DrawTexture(new Rect(rect.x + num, rect.yMax - headerIconSize.y, headerIconSize.x, headerIconSize.y).ContractedBy(2f), def.HeaderIcon);
             }
 
@@ -76,10 +75,16 @@ namespace CombatExtended.ExtendedLoadout
                 {
                     Widgets.DrawHighlight(interactableHeaderRect);
                     var headerTip = GetHeaderTip(table);
-                    if (!headerTip.NullOrEmpty()) TooltipHandler.TipRegion(interactableHeaderRect, headerTip);
+                    if (!headerTip.NullOrEmpty())
+                    {
+                        TooltipHandler.TipRegion(interactableHeaderRect, headerTip);
+                    }
                 }
 
-                if (Widgets.ButtonInvisible(interactableHeaderRect)) HeaderClicked(rect, table);
+                if (Widgets.ButtonInvisible(interactableHeaderRect))
+                {
+                    HeaderClicked(rect, table);
+                }
             }
         }
 
@@ -102,21 +107,21 @@ namespace CombatExtended.ExtendedLoadout
 
             // Reduce width if we're adding a clear forced button
             bool somethingIsForced = pawn.HoldTrackerAnythingHeld();
-            Rect loadoutButtonRect = new Rect(num3, rect.y + 2f, (float)num, rect.height - 4f);
+            Rect loadoutButtonRect = new(num3, rect.y + 2f, num, rect.height - 4f);
             if (somethingIsForced)
             {
-                loadoutButtonRect.width -= 4f + (float)num2;
+                loadoutButtonRect.width -= 4f + num2;
             }
 
             // Main loadout button
-            string label = (pawn.GetLoadout() as Loadout_Multi)[index].label.Truncate(loadoutButtonRect.width, null);
-            Widgets.Dropdown<Pawn, Loadout>(loadoutButtonRect, pawn, p => (p.GetLoadout() as Loadout_Multi)[index], Btn_GenerateMenu, label, null, null, null, null, true);
+            string label = (pawn.GetLoadout() as Loadout_Multi)![index].label.Truncate(loadoutButtonRect.width);
+            Widgets.Dropdown(loadoutButtonRect, pawn, p => (p.GetLoadout() as Loadout_Multi)![index], Btn_GenerateMenu, label, null, null, null, null, true);
 
             // Clear forced button
             num3 += loadoutButtonRect.width;
             num3 += 4f;
             //changed: Rect forcedHoldRect = new Rect(num3, rect.y + 2f, (float)num2, rect.height - 4f);
-            Rect forcedHoldRect = new Rect(num3, num4, (float)num2, (float)num2);
+            Rect forcedHoldRect = new(num3, num4, num2, num2);
             if (somethingIsForced)
             {
                 if (Widgets.ButtonImage(forcedHoldRect, ClearImage))
@@ -128,25 +133,29 @@ namespace CombatExtended.ExtendedLoadout
                     string text = "CE_ForcedHold".Translate() + ":\n";
                     foreach (HoldRecord rec in LoadoutManager.GetHoldRecords(pawn))
                     {
-                        if (!rec.pickedUp) continue;
+                        if (!rec.pickedUp)
+                        {
+                            continue;
+                        }
+
                         text = text + "\n   " + rec.thingDef.LabelCap + " x" + rec.count;
                     }
                     return text;
                 }, pawn.GetHashCode() * 613));
-                num3 += (float)num2;
+                num3 += num2;
                 num3 += 4f;
             }
 
             //changed: Rect assignTabRect = new Rect(num3, rect.y + 2f, (float)num2, rect.height - 4f);
-            Rect assignTabRect = new Rect(num3, num4, (float)num2, (float)num2);
+            Rect assignTabRect = new(num3, num4, num2, num2);
             //changed: if (Widgets.ButtonText(assignTabRect, "AssignTabEdit".Translate(), true, false, true))
             if (Widgets.ButtonImage(assignTabRect, EditImage))
             {
-                Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended((pawn.GetLoadout() as Loadout_Multi)[index]));
+                Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended((pawn.GetLoadout() as Loadout_Multi)![index]));
             }
             // Added this next line.
             TooltipHandler.TipRegion(assignTabRect, new TipSignal(textGetter("CE_Loadouts"), pawn.GetHashCode() * 613));
-            num3 += (float)num2;
+            num3 += num2;
         }
     }
 }

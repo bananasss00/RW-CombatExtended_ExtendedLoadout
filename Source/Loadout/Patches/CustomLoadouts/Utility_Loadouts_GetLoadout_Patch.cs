@@ -12,6 +12,7 @@ namespace CombatExtended.ExtendedLoadout
         [HarmonyPrefix]
         public static bool GetLoadout(Pawn pawn, ref Loadout __result)
         {
+            // original => return Loadout or LoadoutManager.DefaultLoadout
             __result = LoadoutMulti_Manager.GetLoadout(pawn);
             return false;
         }

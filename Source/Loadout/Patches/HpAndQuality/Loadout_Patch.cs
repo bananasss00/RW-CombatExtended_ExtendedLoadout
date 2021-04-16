@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using HarmonyLib;
+﻿using HarmonyLib;
 
 namespace CombatExtended.ExtendedLoadout
 {
@@ -12,7 +11,14 @@ namespace CombatExtended.ExtendedLoadout
         [HarmonyPatch(nameof(Loadout.Copy), typeof(Loadout))]
         private static void Copy(Loadout source, Loadout __result)
         {
-            CE_LoadoutExtended.CopyLoadoutExtended(source, __result);
+            Loadout_Extended.Copy(source, __result);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(Loadout.ExposeData))]
+        private static void ExposeData(Loadout __instance)
+        {
+            Loadout_Extended.ExposeData(__instance);
         }
     }
 }

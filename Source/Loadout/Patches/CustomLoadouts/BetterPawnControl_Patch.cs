@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Reflection.Emit;
 using BetterPawnControl;
 using HarmonyLib;
@@ -19,7 +17,7 @@ namespace CombatExtended.ExtendedLoadout
         /// <summary>
         /// Dictionary< AssignLink, List<int> >
         /// </summary>
-        private static Dictionary<object, List<int>> LoadoutIds = new Dictionary<object, List<int>>();
+        private static readonly Dictionary<object, List<int>> LoadoutIds = new();
 
         public static void AddColumnsIds(object link, List<int> columnIds)
         {
@@ -33,13 +31,9 @@ namespace CombatExtended.ExtendedLoadout
             }
         }
 
-        public static List<int> GetColumnsIds(object link)
+        public static List<int>? GetColumnsIds(object link)
         {
-            if (LoadoutIds.ContainsKey(link))
-            {
-                return LoadoutIds[link];
-            }
-            return null;
+            return LoadoutIds.ContainsKey(link) ? LoadoutIds[link] : null;
         }
 
         public static void ClearData()
@@ -49,7 +43,7 @@ namespace CombatExtended.ExtendedLoadout
 
         public static void ExposeData(object instance)
         {
-            LoadoutIds.TryGetValue(instance, out var columns);
+            _ = LoadoutIds.TryGetValue(instance, out var columns);
             Scribe_Collections.Look(ref columns, "extendedLoadoutColumns", LookMode.Value);
             LoadoutIds[instance] = columns;
 
@@ -66,13 +60,21 @@ namespace CombatExtended.ExtendedLoadout
                 if (sizeDelta > 0)
                 {
                     Log.Warning($"[BPC_AssignLink_Manager] Fix loadouts list. Count difference: {sizeDelta}");
-                    for (int i = 0; i < sizeDelta; i++) columns.Add(LoadoutManager.DefaultLoadout.uniqueID);
+                    for (int i = 0; i < sizeDelta; i++)
+                    {
+                        columns.Add(LoadoutManager.DefaultLoadout.uniqueID);
+                    }
+
                     LoadoutIds[instance] = columns;
                 }
                 else if (sizeDelta < 0)
                 {
                     Log.Warning($"[BPC_AssignLink_Manager] Fix loadouts list. Count difference: {sizeDelta}");
-                    for (int i = 0; i < Math.Abs(sizeDelta); i++) columns.RemoveAt(columns.Count - 1);
+                    for (int i = 0; i < Math.Abs(sizeDelta); i++)
+                    {
+                        columns.RemoveAt(columns.Count - 1);
+                    }
+
                     LoadoutIds[instance] = columns;
                 }
 
@@ -81,7 +83,7 @@ namespace CombatExtended.ExtendedLoadout
                     // set default value for loadoutId = first column from loadoutMulti
                     // because if user disable multi loadouts from config or disable this mod
                     // assigntab can't be opened anymore (0 not existing id)
-                    (instance as AssignLink).loadoutId = columns[0];
+                    ((AssignLink)instance).loadoutId = columns[0];
                 }
             }
         }
@@ -100,13 +102,13 @@ namespace CombatExtended.ExtendedLoadout
             var worldDataStoreExposeData = AccessTools.Method(typeof(DataStorage.WorldDataStore), nameof(DataStorage.WorldDataStore.ExposeData));
             var assignLinkExposeData = AccessTools.Method(typeof(AssignLink), nameof(AssignLink.ExposeData));
             var saveCurrentState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.SaveCurrentState));
-            var loadState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.LoadState), new [] {typeof(List<AssignLink>), typeof(List<Pawn>), typeof(Policy)});
+            var loadState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.LoadState), new[] { typeof(List<AssignLink>), typeof(List<Pawn>), typeof(Policy) });
 
-            h.Patch(assignLinkCtor, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_Ctor)));
-            h.Patch(worldDataStoreExposeData, postfix: new HarmonyMethod(typeof(BPC), nameof(WorldDataStore_ExposeData_Postfix)));
-            h.Patch(assignLinkExposeData, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_ExposeData_Postfix)));
-            h.Patch(saveCurrentState, transpiler: new HarmonyMethod(typeof(BPC), nameof(BetterPawnControl_AssignManager_SaveCurrentState)));
-            h.Patch(loadState, transpiler: new HarmonyMethod(typeof(BPC), nameof(BetterPawnControl_AssignManager_LoadState)));
+            _ = h.Patch(assignLinkCtor, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_Ctor)));
+            _ = h.Patch(worldDataStoreExposeData, postfix: new HarmonyMethod(typeof(BPC), nameof(WorldDataStore_ExposeData_Postfix)));
+            _ = h.Patch(assignLinkExposeData, postfix: new HarmonyMethod(typeof(BPC), nameof(AssignLink_ExposeData_Postfix)));
+            _ = h.Patch(saveCurrentState, transpiler: new HarmonyMethod(typeof(BPC), nameof(BetterPawnControl_AssignManager_SaveCurrentState)));
+            _ = h.Patch(loadState, transpiler: new HarmonyMethod(typeof(BPC), nameof(BetterPawnControl_AssignManager_LoadState)));
             Log.Message("[CombatExtended.ExtendedLoadout] BetterPawnControl patches initialized");
         }
 
@@ -125,7 +127,7 @@ namespace CombatExtended.ExtendedLoadout
 
         public static void SaveLoadoutId(object assignLink, Pawn pawn)
         {
-            var loadoutMulti = pawn.GetLoadout() as Loadout_Multi;
+            var loadoutMulti = (Loadout_Multi)pawn.GetLoadout();
             var columns = loadoutMulti.Loadouts.Select(x => x.uniqueID).ToList();
             BPC_AssignLink_Manager.AddColumnsIds(assignLink, columns);
         }
@@ -134,15 +136,15 @@ namespace CombatExtended.ExtendedLoadout
         {
             public override bool Equals(object _x, object _y)
             {
-                var x = (AssignLink) _x;
-                var y = (AssignLink) _y;
+                var x = (AssignLink)_x;
+                var y = (AssignLink)_y;
                 return x.zone == y.zone && x.colonist == y.colonist && x.mapId == y.mapId;
             }
 
             public override int GetHashCode(object o)
             {
-                var obj = (AssignLink) o;
-                return obj.zone * 1 + obj.colonist.thingIDNumber * 2 + obj.mapId * 3;
+                var obj = (AssignLink)o;
+                return (obj.zone * 1) + (obj.colonist.thingIDNumber * 2) + (obj.mapId * 3);
             }
         }
 

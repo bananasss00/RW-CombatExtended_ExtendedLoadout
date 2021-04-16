@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using RimWorld;
-using UnityEngine;
-using Verse;
-
-namespace CombatExtended.ExtendedLoadout
+﻿namespace CombatExtended.ExtendedLoadout
 {
     /// <summary>
     /// Implemented PostClose in Dialog_ManageLoadouts class. Used for update Slots cache in Loadout_Multi

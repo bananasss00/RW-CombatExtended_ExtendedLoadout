@@ -10,8 +10,8 @@ namespace CombatExtended.ExtendedLoadout
 
         public static void Patch()
         {
-            ExtendedLoadoutMod.Harmony.Patch(AccessTools.PropertyGetter(typeof(Loadout), nameof(Loadout.SlotCount)), prefix: new HarmonyMethod(typeof(LoadoutProxy_Patch), nameof(SlotCount)));
-            ExtendedLoadoutMod.Harmony.Patch(AccessTools.PropertyGetter(typeof(Loadout), nameof(Loadout.Slots)), prefix: new HarmonyMethod(typeof(LoadoutProxy_Patch), nameof(Slots)));
+            _ = ExtendedLoadoutMod.Harmony.Patch(AccessTools.PropertyGetter(typeof(Loadout), nameof(Loadout.SlotCount)), prefix: new HarmonyMethod(typeof(LoadoutProxy_Patch), nameof(SlotCount)));
+            _ = ExtendedLoadoutMod.Harmony.Patch(AccessTools.PropertyGetter(typeof(Loadout), nameof(Loadout.Slots)), prefix: new HarmonyMethod(typeof(LoadoutProxy_Patch), nameof(Slots)));
         }
 
         public static void Unpatch()
