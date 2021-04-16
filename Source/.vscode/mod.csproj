@@ -30,9 +30,6 @@
 		<LangVersion>9.0</LangVersion>
 		<Nullable>enable</Nullable>
     	<NullableReferenceTypes>true</NullableReferenceTypes>
-		
-		<!-- Enable debug logs -->
-		<!-- <DefineConstants>DEBUG</DefineConstants> -->
 	</PropertyGroup>
 
 	<!-- Visual Studio Condition for debug build -->

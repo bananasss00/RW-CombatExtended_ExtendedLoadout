@@ -1,8 +1,8 @@
 echo off
 
-REM remove unnecessary assemblies
+echo remove unnecessary assemblies
 DEL ..\*\Assemblies\*.* /Q /F
 DEL ..\Assemblies\*.* /Q /F
 
-REM build dll
-dotnet build .vscode
+echo build dll: %1
+dotnet build .vscode --configuration %1
