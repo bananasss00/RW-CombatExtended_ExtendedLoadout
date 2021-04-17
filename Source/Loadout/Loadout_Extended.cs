@@ -14,6 +14,11 @@ namespace CombatExtended.ExtendedLoadout
         {
             return Loadout_Extended.Get(loadout);
         }
+
+        public static void CopyLoadoutExtended(this Loadout dest, Loadout from)
+        {
+            dest.Extended().Copy(from.Extended());
+        }
     }
 
     public class Loadout_Extended
@@ -64,23 +69,21 @@ namespace CombatExtended.ExtendedLoadout
             return true;
         }
 
-        public static void Copy(Loadout from, Loadout to)
+        public void Copy(Loadout_Extended from)
         {
-            var src = Get(from);
-            var dest = Get(to);
-            dest.HpRange = src.HpRange;
-            dest.QualityRange = src.QualityRange;
+            this.HpRange = from.HpRange;
+            this.QualityRange = from.QualityRange;
         }
 
-        public static void ExposeData(Loadout loadout)
+        public void ExposeData()
         {
-            var ceLoadoutExtended = Get(loadout);
-            Scribe_Values.Look(ref ceLoadoutExtended.HpRange, "hpRange", FloatRange.ZeroToOne);
-            Scribe_Values.Look(ref ceLoadoutExtended.QualityRange, "qualityRange", QualityRange.All);
+            Scribe_Values.Look(ref HpRange, "hpRange", FloatRange.ZeroToOne);
+            Scribe_Values.Look(ref QualityRange, "qualityRange", QualityRange.All);
             DbgLog.Msg($"Loadout_Extended ExposeData");
         }
 
-        public static void CleaAllLoadoutsData()
+        [ClearDataOnNewGame]
+        public static void ClearData()
         {
             Loadouts.Clear();
             DbgLog.Wrn($"[Loadout_Extended] Clear data");

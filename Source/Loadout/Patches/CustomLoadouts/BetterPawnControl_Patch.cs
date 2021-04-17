@@ -36,9 +36,14 @@ namespace CombatExtended.ExtendedLoadout
             return LoadoutIds.ContainsKey(link) ? LoadoutIds[link] : null;
         }
 
+        [ClearDataOnNewGame]
         public static void ClearData()
         {
-            LoadoutIds.Clear();
+            if (ModActive.BetterPawnControl)
+            {
+                LoadoutIds.Clear();
+                DbgLog.Wrn($"[BPC_AssignLink_Manager] Clear data");
+            }
         }
 
         public static void ExposeData(object instance)

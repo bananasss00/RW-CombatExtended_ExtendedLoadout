@@ -61,9 +61,11 @@ namespace CombatExtended.ExtendedLoadout
 
         public static IEnumerable<Loadout_Multi> LoadoutsMulti => assignedLoadoutsMulti.Values;
 
+        [ClearDataOnNewGame]
         public static void ClearData()
         {
             assignedLoadoutsMulti.Clear();
+            DbgLog.Wrn($"[LoadoutMulti_Manager] Clear data");
         }
 
         public static int GetUniqueLoadoutID()
