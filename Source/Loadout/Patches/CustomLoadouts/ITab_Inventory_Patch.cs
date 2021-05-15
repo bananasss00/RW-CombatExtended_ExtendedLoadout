@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -54,25 +55,38 @@ namespace CombatExtended.ExtendedLoadout
             // call LoadoutMulti_Manager.SetLoadout(pawn, loadout, index) instead Utility_Loadouts.SetLoadout(pawn, loadout)
             code[setLoadoutReplaceIdx].operand = setLoadoutNew;
 
-            if (!(// ldarg.0
-                  code[setLoadoutReplaceIdx + 2].opcode == OpCodes.Ldarg_0 &&
-                  // call CombatExtended.ITab_Inventory::get_SelPawnForGear()
-                  code[setLoadoutReplaceIdx + 3].opcode == OpCodes.Call &&
-                  // call  CombatExtended.Utility_Loadouts::GetLoadout(class ['Assembly-CSharp']Verse.Pawn)
-#pragma warning disable 252, 253
-                  code[setLoadoutReplaceIdx + 4].opcode == OpCodes.Call && code[setLoadoutReplaceIdx + 4].operand == getLoadout))
-#pragma warning restore 252,253
-            {
-                Log.Error($"Outdated transpiler ITab_Inventory.FillTab");
-                return instructions;
-            }
 
-            // replace SelPawnForGear.GetLoadout() => local_var loadout
-            code.RemoveRange(setLoadoutReplaceIdx + 2, 3);
-            code.Insert(setLoadoutReplaceIdx + 2, new CodeInstruction(OpCodes.Ldloc_S, loadoutLocal));
-            //File.WriteAllLines("a:/before.txt", instructions.Select(x => x.ToString()));
-            //File.WriteAllLines("a:/after.txt", code.Select(x => x.ToString()));
-            return code;
+            /*
+                call void CombatExtended.Utility_Loadouts:SetLoadout
+                nop  // new nop instruction - in 24.04.2021 build CombatExtended
+                call Verse.Find::get_WindowStack()
+                
+                // replace SelPawnForGear.GetLoadout() => local_var loadout
+                {
+                    ldarg.0
+                    call CombatExtended.ITab_Inventory::get_SelPawnForGear
+                    call CombatExtended.Utility_Loadouts::GetLoadout
+                }
+            */
+            bool nextNop = code[setLoadoutReplaceIdx + 1].opcode == OpCodes.Nop;
+            int replaceIndex = nextNop ? setLoadoutReplaceIdx + 3 : setLoadoutReplaceIdx + 2;
+            var c = code.Skip(replaceIndex).Take(3).ToList();
+            if (// ldarg.0
+                  c[0].opcode == OpCodes.Ldarg_0 &&
+                  // call CombatExtended.ITab_Inventory::get_SelPawnForGear()
+                  c[1].opcode == OpCodes.Call &&
+                  // call  CombatExtended.Utility_Loadouts::GetLoadout(class ['Assembly-CSharp']Verse.Pawn)
+                  c[2].Is(OpCodes.Call, getLoadout))
+            {
+                code.RemoveRange(replaceIndex, 3);
+                code.Insert(replaceIndex, new CodeInstruction(OpCodes.Ldloc_S, loadoutLocal));
+                // File.WriteAllLines("a:/before.txt", instructions.Select(x => x.ToString()));
+                // File.WriteAllLines("a:/after.txt", code.Select(x => x.ToString()));
+                return code;
+            }
+            
+            Log.Error($"Outdated transpiler ITab_Inventory.FillTab");
+            return instructions;
         }
     }
 }
