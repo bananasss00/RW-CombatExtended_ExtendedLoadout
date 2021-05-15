@@ -10,11 +10,11 @@ namespace CombatExtended.ExtendedLoadout
     [AttributeUsage(AttributeTargets.Method)]
     public class ClearDataOnNewGame : Attribute {}
 
-    public class GameComponent_ExtendedLoadout : GameComponent
+    public class Cleaner_GameComponent : GameComponent
 	{
         private static List<MethodInfo>? _clearDataMethods;
 
-        public GameComponent_ExtendedLoadout(Game game)
+        public Cleaner_GameComponent(Game game)
 		{
             if (_clearDataMethods == null)
             {

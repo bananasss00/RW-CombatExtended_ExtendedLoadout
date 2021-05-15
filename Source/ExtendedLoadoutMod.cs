@@ -25,9 +25,7 @@ namespace CombatExtended.ExtendedLoadout
 
     public class ExtendedLoadoutMod : ModBase
     {
-        #pragma warning disable CS8618
-        public static ExtendedLoadoutMod Instance;
-        #pragma warning restore CS8618
+        public static ExtendedLoadoutMod Instance = null!;
 
         public const int MaxColumnCount = 10;
 

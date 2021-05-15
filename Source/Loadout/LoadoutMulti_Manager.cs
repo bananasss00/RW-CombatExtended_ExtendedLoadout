@@ -7,11 +7,9 @@ namespace CombatExtended.ExtendedLoadout
 {
     public static class LoadoutMulti_Manager
     {
-        #pragma warning disable CS8618
-        // used for exposing data in rimworld
-        private static List<Pawn> keysWorkingList;
-        private static List<Loadout_Multi> valuesWorkingList;
-        #pragma warning restore CS8618
+        // rimworld exposedata buffers
+        private static List<Pawn> keysWorkingList = null!;
+        private static List<Loadout_Multi> valuesWorkingList = null!;
 
         private static Dictionary<Pawn, Loadout_Multi> assignedLoadoutsMulti = new();
 

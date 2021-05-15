@@ -9,7 +9,7 @@
 
 		<!-- Modify [RootNamespace], [AssemblyName], [OutputPath], [VersionPrefix] -->
 		<RootNamespace>CombatExtended.ExtendedLoadout</RootNamespace>
-		<AssemblyName>CombatExtended.ExtendedLoadout</AssemblyName>
+		<AssemblyName>Z.CombatExtended.ExtendedLoadout</AssemblyName>
 		<OutputPath>../../Assemblies</OutputPath>
 		
 		<Authors>PirateBY</Authors>

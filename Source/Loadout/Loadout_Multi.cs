@@ -7,7 +7,18 @@ namespace CombatExtended.ExtendedLoadout
 {
     public class Loadout_Multi : Loadout, IExposable, ILoadReferenceable
     {
-        public static int ColumnsCount { get; set; }
+        // Init only
+        private static int? _columnsCount;
+        public static int ColumnsCount
+        {
+            get => _columnsCount ?? throw new Exception("ColumnsCount not initialized!");
+            set
+            {
+                if (_columnsCount != null)
+                    throw new Exception("ColumnsCount can be setted one time!");
+                _columnsCount = value;
+            }
+        }
 
         public new int uniqueID;
         public new int SlotCount => Slots.Count;
