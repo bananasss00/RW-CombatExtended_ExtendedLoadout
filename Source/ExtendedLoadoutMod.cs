@@ -65,7 +65,7 @@ namespace CombatExtended.ExtendedLoadout
 
                 loadoutNames[i].VisibilityPredicate = () => UseMultiLoadouts && colId < MultiLoadoutsCount;
 
-                loadoutNames[i].OnValueChanged = _ =>
+                loadoutNames[i].ValueChanged += _ =>
                 {
                     var assign = DefDatabase<PawnTableDef>.GetNamed("Assign");
                     var loadoutColumn = assign.columns.FirstOrDefault(c => c.defName.Equals($"Loadout_{colId}"));

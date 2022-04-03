@@ -104,7 +104,7 @@ namespace CombatExtended.ExtendedLoadout
                     typeof(int), typeof(Pawn), typeof(Outfit), typeof(FoodRestriction), typeof(DrugPolicy),
                     typeof(HostilityResponseMode), typeof(int), typeof(int)
                 });
-            var worldDataStoreExposeData = AccessTools.Method(typeof(DataStorage.WorldDataStore), nameof(DataStorage.WorldDataStore.ExposeData));
+            var worldDataStoreExposeData = AccessTools.Method(typeof(DataStorage), nameof(DataStorage.ExposeData));
             var assignLinkExposeData = AccessTools.Method(typeof(AssignLink), nameof(AssignLink.ExposeData));
             var saveCurrentState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.SaveCurrentState));
             var loadState = AccessTools.Method(typeof(AssignManager), nameof(AssignManager.LoadState), new[] { typeof(List<AssignLink>), typeof(List<Pawn>), typeof(Policy) });
