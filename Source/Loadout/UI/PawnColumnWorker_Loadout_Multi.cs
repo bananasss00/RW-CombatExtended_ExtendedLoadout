@@ -8,6 +8,7 @@ namespace CombatExtended.ExtendedLoadout
     /// <summary>
     /// Replaced pawn.GetLoadout() => pawn.GetLoadout().Loadout2, and SetLoadout2
     /// </summary>
+    [HotSwappable]
     public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
     {
         private int GetIndexFromDefName(string defName)
@@ -106,12 +107,7 @@ namespace CombatExtended.ExtendedLoadout
             float num4 = rect.y + ((rect.height - IconSize) / 2);
 
             // Reduce width if we're adding a clear forced button
-            bool somethingIsForced = pawn.HoldTrackerAnythingHeld();
             Rect loadoutButtonRect = new(num3, rect.y + 2f, num, rect.height - 4f);
-            if (somethingIsForced)
-            {
-                loadoutButtonRect.width -= 4f + num2;
-            }
 
             // Main loadout button
             string label = (pawn.GetLoadout() as Loadout_Multi)![index].label.Truncate(loadoutButtonRect.width);
@@ -120,31 +116,6 @@ namespace CombatExtended.ExtendedLoadout
             // Clear forced button
             num3 += loadoutButtonRect.width;
             num3 += 4f;
-            //changed: Rect forcedHoldRect = new Rect(num3, rect.y + 2f, (float)num2, rect.height - 4f);
-            Rect forcedHoldRect = new(num3, num4, num2, num2);
-            if (somethingIsForced)
-            {
-                if (Widgets.ButtonImage(forcedHoldRect, ClearImage))
-                {
-                    pawn.HoldTrackerClear(); // yes this will also delete records that haven't been picked up and thus not shown to the player...
-                }
-                TooltipHandler.TipRegion(forcedHoldRect, new TipSignal(delegate
-                {
-                    string text = "CE_ForcedHold".Translate() + ":\n";
-                    foreach (HoldRecord rec in LoadoutManager.GetHoldRecords(pawn))
-                    {
-                        if (!rec.pickedUp)
-                        {
-                            continue;
-                        }
-
-                        text = text + "\n   " + rec.thingDef.LabelCap + " x" + rec.count;
-                    }
-                    return text;
-                }, pawn.GetHashCode() * 613));
-                num3 += num2;
-                num3 += 4f;
-            }
 
             //changed: Rect assignTabRect = new Rect(num3, rect.y + 2f, (float)num2, rect.height - 4f);
             Rect assignTabRect = new(num3, num4, num2, num2);

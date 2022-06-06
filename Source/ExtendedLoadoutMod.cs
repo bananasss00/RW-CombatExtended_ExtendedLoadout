@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using HugsLib;
@@ -8,6 +9,11 @@ using Verse;
 
 namespace CombatExtended.ExtendedLoadout
 {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public class HotSwappableAttribute : Attribute
+    {
+    }
+
     [StaticConstructorOnStartup]
     public static class EarlyInit
     {
@@ -117,6 +123,15 @@ namespace CombatExtended.ExtendedLoadout
 
         private IEnumerable<PawnColumnDef> GeneratePawnColumnDefs(int count)
         {
+            // CE_UpdateLoadoutNow
+            yield return new PawnColumnDef()
+            {
+                defName = $"CE_UpdateLoadoutNow",
+                workerClass = typeof(PawnColumnWorker_UpdateLoadoutNow),
+                label = "CE_UpdateLoadoutNow".Translate(),
+                sortable = false
+            };
+            // Loadout columns
             for (int i = 0; i < count; i++)
             {
                 yield return new PawnColumnDef()
