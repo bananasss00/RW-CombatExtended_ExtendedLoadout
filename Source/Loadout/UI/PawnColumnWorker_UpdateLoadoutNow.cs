@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -31,19 +32,23 @@ namespace CombatExtended.ExtendedLoadout
         {
             Job? job = pawn.thinker?.GetMainTreeThinkNode<JobGiver_UpdateLoadout>()?.TryGiveJob(pawn);
             if (job != null)
+            {
                 pawn.jobs.StartJob(job, JobCondition.InterruptForced);
+            }
         }
 
         public override void DoHeader(Rect rect, PawnTable table)
         {
             base.DoHeader(rect, table);
             Rect rect2 = new Rect(rect.x, rect.y + (rect.height - TopAreaHeight), Mathf.Min(rect.width, 360f), ManageOutfitsButtonHeight);
-            if (Widgets.ButtonText(rect2, "CE_ManageLoadouts".Translate(), true, false, true))
+            if (Widgets.ButtonText(rect2, "CE_UpdateLoadoutNow".Translate(), true, false, true))
             {
-                Find.WindowStack.Add(new Dialog_ManageLoadouts(null));
-                PlayerKnowledgeDatabase.KnowledgeDemonstrated(CE_ConceptDefOf.CE_Loadouts, KnowledgeAmount.Total);
+                foreach (var pawn in Find.CurrentMap?.mapPawns?.AllPawnsSpawned ?? Enumerable.Empty<Pawn>())
+                {
+                    UpdateLoadoutNow(pawn);
+                }
             }
-            UIHighlighter.HighlightOpportunity(rect2, "CE_ManageLoadouts");
+            UIHighlighter.HighlightOpportunity(rect2, "CE_UpdateLoadoutNow");
         }
 
         /* (ProfoundDarkness) I've intentionally left some code remarked in the following code because it's a useful guide on how to create
