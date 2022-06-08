@@ -125,6 +125,8 @@ namespace CombatExtended.ExtendedLoadout
                 for (int i = 0; i < columns.Count; i++)
                 {
                     var loadout = LoadoutManager.GetLoadoutById(columns[i]);
+                    if (loadout == null)
+                        loadout = LoadoutManager.DefaultLoadout;
                     pawn.SetLoadout(loadout, i);
                 }
             }
@@ -133,7 +135,7 @@ namespace CombatExtended.ExtendedLoadout
         public static void SaveLoadoutId(object assignLink, Pawn pawn)
         {
             var loadoutMulti = (Loadout_Multi)pawn.GetLoadout();
-            var columns = loadoutMulti.Loadouts.Select(x => x.uniqueID).ToList();
+            var columns = loadoutMulti.Loadouts.Select(x => x?.uniqueID ?? LoadoutManager.DefaultLoadout.uniqueID).ToList();
             BPC_AssignLink_Manager.AddColumnsIds(assignLink, columns);
         }
 
