@@ -121,9 +121,9 @@ namespace CombatExtended.ExtendedLoadout
 
                 if (Widgets.ButtonImage(personalLoadoutRect, PersonalLoadoutImage))
                 {
-                    Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended((pawn.GetLoadout() as Loadout_Multi)!.PersonalLoadout));
+                    Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended(pawn, (pawn.GetLoadout() as Loadout_Multi)!.PersonalLoadout));
                 }
-                TooltipHandler.TipRegion(personalLoadoutRect, new TipSignal(textGetter("CE_Loadouts"), pawn.GetHashCode() * 6178));
+                TooltipHandler.TipRegion(personalLoadoutRect, new TipSignal(textGetter("CE_Extended.PersonalLoadoutTip"), pawn.GetHashCode() * 6178));
             }
 
             // Main loadout button

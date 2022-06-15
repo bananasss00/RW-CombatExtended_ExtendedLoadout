@@ -79,6 +79,11 @@ namespace CombatExtended.ExtendedLoadout
                 loadout = new Loadout_Multi(pawn);
                 assignedLoadoutsMulti.Add(pawn, loadout);
             }
+            // back compatibility
+            if (loadout.PersonalLoadout == null)
+            {
+                loadout.GeneratePersonalLoadout(pawn);
+            }
             return loadout;
         }
 

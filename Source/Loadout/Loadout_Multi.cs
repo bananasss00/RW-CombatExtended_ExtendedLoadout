@@ -20,9 +20,9 @@ namespace CombatExtended.ExtendedLoadout
             }
         }
 
-        private Pawn _pawn;
-        private Loadout _personalLoadout;
-        public Loadout PersonalLoadout => _personalLoadout;
+        private Pawn? _pawn;
+        private Loadout? _personalLoadout;
+        public Loadout? PersonalLoadout => _personalLoadout;
         public new int uniqueID;
         public new int SlotCount => Slots.Count;
         public new List<LoadoutSlot> Slots { get; private set; } = new();
@@ -35,16 +35,21 @@ namespace CombatExtended.ExtendedLoadout
 
         public Loadout_Multi(Pawn pawn)
         {
+            GeneratePersonalLoadout(pawn);
+            _loadouts = Enumerable.Repeat(LoadoutManager.DefaultLoadout, ColumnsCount).ToList();
+            NotifyLoadoutChanged();
+            uniqueID = LoadoutMulti_Manager.GetUniqueLoadoutID();
+        }
+
+        public void GeneratePersonalLoadout(Pawn pawn)
+        {
             _pawn = pawn;
+
             var loadout = pawn.GenerateLoadoutFromPawn();
             loadout.label = pawn.Name.ToStringShort;
             loadout.Slots.Clear();
             _personalLoadout = loadout;
             DbgLog.Msg($"Generated loadout for {pawn}, personalLoadout: {_personalLoadout}");
-
-            _loadouts = Enumerable.Repeat(LoadoutManager.DefaultLoadout, ColumnsCount).ToList();
-            NotifyLoadoutChanged();
-            uniqueID = LoadoutMulti_Manager.GetUniqueLoadoutID();
         }
 
         public List<Loadout> Loadouts => _loadouts;
@@ -108,6 +113,16 @@ namespace CombatExtended.ExtendedLoadout
                         _loadouts[i] = LoadoutManager.DefaultLoadout;
                     }
                 }
+
+                if (_pawn == null)
+                {
+                    Log.Error($"[Loadout_Multi] pawn = null");
+                }
+                if (_personalLoadout == null)
+                {
+                    Log.Error($"[Loadout_Multi] personalLoadout = null");
+                }
+
                 NotifyLoadoutChanged();
             }
         }
