@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -11,6 +12,8 @@ namespace CombatExtended.ExtendedLoadout
     [HotSwappable]
     public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
     {
+        public static Texture2D PersonalLoadoutImage => ContentFinder<Texture2D>.Get("UI/personalLoadout");
+
         private int GetIndexFromDefName(string defName)
         {
             return int.Parse(defName.Split('_')[1]);
@@ -107,14 +110,28 @@ namespace CombatExtended.ExtendedLoadout
             float num4 = rect.y + ((rect.height - IconSize) / 2);
 
             // Reduce width if we're adding a clear forced button
-            Rect loadoutButtonRect = new(num3, rect.y + 2f, num, rect.height - 4f);
+            Rect loadoutRect = new(num3, rect.y + 2f, num, rect.height - 4f);
+
+            if (GetIndexFromDefName(def.defName) == 0)
+            {
+                Rect personalLoadoutRect = new(loadoutRect.x, loadoutRect.y, num2, num2);
+                loadoutRect.x += 4f + num2;
+                loadoutRect.width -= 4f + num2;
+                num3 += 4f + num2;
+
+                if (Widgets.ButtonImage(personalLoadoutRect, PersonalLoadoutImage))
+                {
+                    Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended((pawn.GetLoadout() as Loadout_Multi)!.PersonalLoadout));
+                }
+                TooltipHandler.TipRegion(personalLoadoutRect, new TipSignal(textGetter("CE_Loadouts"), pawn.GetHashCode() * 6178));
+            }
 
             // Main loadout button
-            string label = (pawn.GetLoadout() as Loadout_Multi)![index].label.Truncate(loadoutButtonRect.width);
-            Widgets.Dropdown(loadoutButtonRect, pawn, p => (p.GetLoadout() as Loadout_Multi)![index], Btn_GenerateMenu, label, null, null, null, null, true);
+            string label = (pawn.GetLoadout() as Loadout_Multi)![index].label.Truncate(loadoutRect.width);
+            Widgets.Dropdown(loadoutRect, pawn, p => (p.GetLoadout() as Loadout_Multi)![index], Btn_GenerateMenu, label, null, null, null, null, true);
 
             // Clear forced button
-            num3 += loadoutButtonRect.width;
+            num3 += loadoutRect.width;
             num3 += 4f;
 
             //changed: Rect assignTabRect = new Rect(num3, rect.y + 2f, (float)num2, rect.height - 4f);

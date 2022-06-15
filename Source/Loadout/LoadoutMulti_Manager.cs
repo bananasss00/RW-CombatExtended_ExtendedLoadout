@@ -76,7 +76,7 @@ namespace CombatExtended.ExtendedLoadout
         {
             if (!assignedLoadoutsMulti.TryGetValue(pawn, out var loadout))
             {
-                loadout = new Loadout_Multi();
+                loadout = new Loadout_Multi(pawn);
                 assignedLoadoutsMulti.Add(pawn, loadout);
             }
             return loadout;
@@ -95,7 +95,7 @@ namespace CombatExtended.ExtendedLoadout
             }
             else
             {
-                assignedLoadoutsMulti.Add(pawn, new Loadout_Multi { [index] = loadout });
+                assignedLoadoutsMulti.Add(pawn, new Loadout_Multi(pawn) { [index] = loadout });
             }
         }
     }

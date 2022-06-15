@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Verse;
 
 namespace CombatExtended.ExtendedLoadout
 {

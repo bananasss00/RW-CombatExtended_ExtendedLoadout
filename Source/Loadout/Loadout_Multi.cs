@@ -20,6 +20,9 @@ namespace CombatExtended.ExtendedLoadout
             }
         }
 
+        private Pawn _pawn;
+        private Loadout _personalLoadout;
+        public Loadout PersonalLoadout => _personalLoadout;
         public new int uniqueID;
         public new int SlotCount => Slots.Count;
         public new List<LoadoutSlot> Slots { get; private set; } = new();
@@ -27,6 +30,18 @@ namespace CombatExtended.ExtendedLoadout
 
         public Loadout_Multi()
         {
+            // only used for expose data!
+        }
+
+        public Loadout_Multi(Pawn pawn)
+        {
+            _pawn = pawn;
+            var loadout = pawn.GenerateLoadoutFromPawn();
+            loadout.label = pawn.Name.ToStringShort;
+            loadout.Slots.Clear();
+            _personalLoadout = loadout;
+            DbgLog.Msg($"Generated loadout for {pawn}, personalLoadout: {_personalLoadout}");
+
             _loadouts = Enumerable.Repeat(LoadoutManager.DefaultLoadout, ColumnsCount).ToList();
             NotifyLoadoutChanged();
             uniqueID = LoadoutMulti_Manager.GetUniqueLoadoutID();
@@ -49,7 +64,7 @@ namespace CombatExtended.ExtendedLoadout
         /// </summary>
         public void NotifyLoadoutChanged()
         {
-            Slots = _loadouts.Where(x => x != null).SelectMany(x => x.Slots).ToList();
+            Slots = _loadouts.Prepend(PersonalLoadout).Where(x => x != null).SelectMany(x => x.Slots).ToList();
             DbgLog.Msg("Loadout_Multi.NotifyLoadoutChanged");
         }
 
@@ -61,6 +76,8 @@ namespace CombatExtended.ExtendedLoadout
         public new void ExposeData()
         {
             Scribe_Values.Look(ref uniqueID, "uniqueID");
+            Scribe_References.Look(ref _pawn, "pawn");
+            Scribe_Deep.Look(ref _personalLoadout, "personalLoadout");
             Scribe_Collections.Look(ref _loadouts, "loadouts", LookMode.Reference);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
