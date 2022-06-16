@@ -34,13 +34,24 @@ namespace CombatExtended.ExtendedLoadout
             return 42f;
         }
 
+        public static void DrawNameFieldNew(Dialog_ManageLoadouts instance, Rect canvas)
+        {
+            if (instance is Dialog_ManageLoadouts_Extended {IsPersonalLoadout: true})
+            {
+                return;
+            }
+            instance.DrawNameField(canvas);
+        }
+
         [HarmonyPatch(nameof(Dialog_ManageLoadouts.DoWindowContents))]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var height30 = AccessTools.Method(typeof(HideButtons_PersonalLoadout_Patch), nameof(Height30)); ;
             var y42 = AccessTools.Method(typeof(HideButtons_PersonalLoadout_Patch), nameof(Y42)); ;
-            var method = AccessTools.Method(typeof(LoadoutManager), nameof(LoadoutManager.SortLoadouts));
+            var sortLoadouts = AccessTools.Method(typeof(LoadoutManager), nameof(LoadoutManager.SortLoadouts));
+            var drawNameField = AccessTools.Method(typeof(Dialog_ManageLoadouts), nameof(Dialog_ManageLoadouts.DrawNameField));
+            var drawNameFieldNew = AccessTools.Method(typeof(HideButtons_PersonalLoadout_Patch), nameof(DrawNameFieldNew));
             bool end = false;
 
             bool buttonHeightPatched = false;
@@ -59,10 +70,14 @@ namespace CombatExtended.ExtendedLoadout
                     yield return new CodeInstruction(OpCodes.Call, y42);
                     yTopPatched = true;
                 }
-                else if (!end && ci.Calls(method))
+                else if (!end && ci.Calls(sortLoadouts))
                 {
                     end = true;
                     yield return ci;
+                }
+                else if (ci.Calls(drawNameField))
+                {
+                    yield return new CodeInstruction(OpCodes.Call, drawNameFieldNew);
                 }
                 else
                 {
