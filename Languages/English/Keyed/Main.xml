@@ -10,7 +10,7 @@
 	<Settings.MultiLoadoutsCount.Label>The number of loadout columns</Settings.MultiLoadoutsCount.Label>
 	<Settings.MultiLoadoutsCount.Desc>How many columns to add\n\nNeed reload game</Settings.MultiLoadoutsCount.Desc>
 	
-	<CE_Extended.PersonalLoadoutTip>Personal loadout</CE_Extended.PersonalLoadoutTip>
+	<CE_Extended.PersonalLoadoutTip>personal loadout</CE_Extended.PersonalLoadoutTip>
 	
 	<Loadout1>Loadout 1</Loadout1>
 	<Loadout2>Loadout 2</Loadout2>

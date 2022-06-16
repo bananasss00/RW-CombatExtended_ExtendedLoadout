@@ -10,7 +10,7 @@
 	<Settings.MultiLoadoutsCount.Label>Количество колонок снаряжений</Settings.MultiLoadoutsCount.Label>
 	<Settings.MultiLoadoutsCount.Desc>Сколько добавить колонок\n\nТребуется перезапуск</Settings.MultiLoadoutsCount.Desc>
 	
-	<CE_Extended.PersonalLoadoutTip>Персональное снаряжение колониста</CE_Extended.PersonalLoadoutTip>
+	<CE_Extended.PersonalLoadoutTip>персональное снаряжение колониста</CE_Extended.PersonalLoadoutTip>
 	
 	<Loadout1>Cнаряжение 1</Loadout1>
 	<Loadout2>Cнаряжение 2</Loadout2>

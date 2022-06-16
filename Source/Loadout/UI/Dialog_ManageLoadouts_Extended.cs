@@ -1,10 +1,87 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace CombatExtended.ExtendedLoadout
 {
+    [HarmonyPatch(typeof(Dialog_ManageLoadouts))]
+    [HotSwappable]
+    public static class HideButtons_PersonalLoadout_Patch
+    {
+        static bool Prepare() => ExtendedLoadoutMod.Instance.useMultiLoadouts;
+
+        public static float Height30(Dialog_ManageLoadouts instance)
+        {
+            if (instance is Dialog_ManageLoadouts_Extended {IsPersonalLoadout: true})
+            {
+                return 0f;
+            }
+
+            return 30f;
+        }
+
+        public static float Y42(Dialog_ManageLoadouts instance)
+        {
+            if (instance is Dialog_ManageLoadouts_Extended {IsPersonalLoadout: true})
+            {
+                return 0f;
+            }
+
+            return 42f;
+        }
+
+        [HarmonyPatch(nameof(Dialog_ManageLoadouts.DoWindowContents))]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var height30 = AccessTools.Method(typeof(HideButtons_PersonalLoadout_Patch), nameof(Height30)); ;
+            var y42 = AccessTools.Method(typeof(HideButtons_PersonalLoadout_Patch), nameof(Y42)); ;
+            var method = AccessTools.Method(typeof(LoadoutManager), nameof(LoadoutManager.SortLoadouts));
+            bool end = false;
+
+            bool buttonHeightPatched = false;
+            bool yTopPatched = false;
+            foreach (var ci in instructions)
+            {
+                if (!end && ci.opcode == OpCodes.Ldc_R4 && (float)ci.operand == 30f)
+                {
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Call, height30);
+                    buttonHeightPatched = true;
+                }
+                else if (!end && ci.opcode == OpCodes.Ldc_R4 && (float)ci.operand == 42f)
+                {
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Call, y42);
+                    yTopPatched = true;
+                }
+                else if (!end && ci.Calls(method))
+                {
+                    end = true;
+                    yield return ci;
+                }
+                else
+                {
+                    yield return ci;
+                    //File.AppendAllText("a:/dd.txt", ci.ToString() + "\n");
+                }
+            }
+
+            if (!buttonHeightPatched)
+            {
+                Log.Error($"buttonHeightPatched false!");
+            }
+            if (!yTopPatched)
+            {
+                Log.Error($"yTopPatched false!");
+            }
+        }
+    }
+
     /// <summary>
     /// Implemented PostClose in Dialog_ManageLoadouts class. Used for update Slots cache in Loadout_Multi
     /// </summary>
@@ -26,6 +103,8 @@ namespace CombatExtended.ExtendedLoadout
             _cardSize = CharacterCardUtility.PawnCardSize(pawn);
             DbgLog.Msg($"cardSize: {_cardSize}");
         }
+
+        public bool IsPersonalLoadout => _pawn != null;
 
         public override Vector2 InitialSize
         {
@@ -52,7 +131,7 @@ namespace CombatExtended.ExtendedLoadout
                     _pawn = null;
                 }
             }
-            
+
             base.DoWindowContents(canvas);
         }
 

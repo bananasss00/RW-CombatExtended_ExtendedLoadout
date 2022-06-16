@@ -114,10 +114,11 @@ namespace CombatExtended.ExtendedLoadout
 
             if (GetIndexFromDefName(def.defName) == 0)
             {
-                Rect personalLoadoutRect = new(loadoutRect.x, loadoutRect.y, num2, num2);
-                loadoutRect.x += 4f + num2;
-                loadoutRect.width -= 4f + num2;
-                num3 += 4f + num2;
+                int personalIconSize = 24;
+                Rect personalLoadoutRect = new(loadoutRect.x, loadoutRect.y, personalIconSize, personalIconSize);
+                loadoutRect.x += 4f + personalIconSize;
+                loadoutRect.width -= 4f + personalIconSize;
+                num3 += 4f + personalIconSize;
 
                 if (Widgets.ButtonImage(personalLoadoutRect, PersonalLoadoutImage))
                 {
