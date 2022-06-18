@@ -118,6 +118,9 @@ public class ExtendedLoadoutMod : ModBase
             LoadoutProxy_Patch.Unpatch();
         }
 
+        // add generic defs
+        MedicineDefs.Initialize();
+
         Log.Message("[CombatExtended.ExtendedLoadout] Initialized");
     }
 
