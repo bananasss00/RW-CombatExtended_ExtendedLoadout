@@ -44,7 +44,7 @@ public class Loadout_Multi : Loadout, IExposable, ILoadReferenceable
     public void GeneratePersonalLoadout(Pawn pawn)
     {
         _pawn = pawn;
-
+        
         var loadout = pawn.GenerateLoadoutFromPawn();
         loadout.label = pawn.Name.ToStringShort;
         loadout.Slots.Clear();
@@ -116,11 +116,11 @@ public class Loadout_Multi : Loadout, IExposable, ILoadReferenceable
 
             if (_pawn == null)
             {
-                Log.Error($"[Loadout_Multi] pawn = null");
+                DbgLog.Wrn($"[Loadout_Multi] pawn = null");
             }
             if (_personalLoadout == null)
             {
-                Log.Error($"[Loadout_Multi] personalLoadout = null");
+                DbgLog.Wrn($"[Loadout_Multi] personalLoadout = null");
             }
 
             NotifyLoadoutChanged();
