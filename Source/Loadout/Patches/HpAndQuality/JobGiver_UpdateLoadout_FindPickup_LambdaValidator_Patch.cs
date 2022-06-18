@@ -7,84 +7,83 @@ using JetBrains.Annotations;
 using RimWorld;
 using Verse;
 
-namespace CombatExtended.ExtendedLoadout
+namespace CombatExtended.ExtendedLoadout;
+
+/// <summary>
+/// Add HP and Quality validator for PickUp weapons
+///
+/// Versions for MultiLoadout and Standart
+/// </summary>
+[HarmonyPatch]
+public class JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch
 {
-    /// <summary>
-    /// Add HP and Quality validator for PickUp weapons
-    ///
-    /// Versions for MultiLoadout and Standart
-    /// </summary>
-    [HarmonyPatch]
-    public class JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch
+    static bool Prepare() => ExtendedLoadoutMod.Instance.useHpAndQualityInLoadouts;
+
+    [UsedImplicitly]
+    public static MethodBase TargetMethod()
     {
-        static bool Prepare() => ExtendedLoadoutMod.Instance.useHpAndQualityInLoadouts;
+        var type = AccessTools.Inner(typeof(JobGiver_UpdateLoadout), "<>c__DisplayClass6_0");
+        return AccessTools.Method(type, "<FindPickup>b__3");
+    }
 
-        [UsedImplicitly]
-        public static MethodBase TargetMethod()
+    [HarmonyTranspiler]
+    [UsedImplicitly]
+    public static IEnumerable<CodeInstruction> FindPickup_Validator_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+    {
+        var code = instructions.ToList();
+        /*
+          IL_000e:  ldarg.1
+          IL_000f:  ldarg.0
+          IL_0010:  ldfld      class ['Assembly-CSharp']Verse.Pawn CombatExtended.JobGiver_UpdateLoadout/'<>c__DisplayClass6_0'::pawn
+          IL_0015:  call       bool ['Assembly-CSharp']RimWorld.ForbidUtility::IsForbidden(class ['Assembly-CSharp']Verse.Thing, class ['Assembly-CSharp']Verse.Pawn)
+          IL_001a:  brtrue.s   IL_0043
+         */
+        var isForbidden = AccessTools.Method(typeof(ForbidUtility), nameof(ForbidUtility.IsForbidden), new[] { typeof(Thing), typeof(Pawn) });
+        var thisPawn = AccessTools.Field(AccessTools.Inner(typeof(JobGiver_UpdateLoadout), "<>c__DisplayClass6_0"), "pawn");
+        var idx = code.FindIndex(ci => ci.Calls(isForbidden));
+        if (idx == -1)
         {
-            var type = AccessTools.Inner(typeof(JobGiver_UpdateLoadout), "<>c__DisplayClass6_0");
-            return AccessTools.Method(type, "<FindPickup>b__3");
-        }
-
-        [HarmonyTranspiler]
-        [UsedImplicitly]
-        public static IEnumerable<CodeInstruction> FindPickup_Validator_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
-        {
-            var code = instructions.ToList();
-            /*
-              IL_000e:  ldarg.1
-              IL_000f:  ldarg.0
-              IL_0010:  ldfld      class ['Assembly-CSharp']Verse.Pawn CombatExtended.JobGiver_UpdateLoadout/'<>c__DisplayClass6_0'::pawn
-              IL_0015:  call       bool ['Assembly-CSharp']RimWorld.ForbidUtility::IsForbidden(class ['Assembly-CSharp']Verse.Thing, class ['Assembly-CSharp']Verse.Pawn)
-              IL_001a:  brtrue.s   IL_0043
-             */
-            var isForbidden = AccessTools.Method(typeof(ForbidUtility), nameof(ForbidUtility.IsForbidden), new[] { typeof(Thing), typeof(Pawn) });
-            var thisPawn = AccessTools.Field(AccessTools.Inner(typeof(JobGiver_UpdateLoadout), "<>c__DisplayClass6_0"), "pawn");
-            var idx = code.FindIndex(ci => ci.Calls(isForbidden));
-            if (idx == -1)
-            {
-                Log.Error($"Can't find IsForbidden in ce findPickup_validator");
-                return code;
-            }
-
-            idx += 2; // after brtrue.s
-
-            code.InsertRange(idx, new[]
-            {
-                new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldfld, thisPawn), // pawn
-                new CodeInstruction(OpCodes.Ldarg_1), // thing
-                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch), nameof(AllowEquip))),
-                new CodeInstruction(OpCodes.Brfalse_S, code[idx - 1].operand), // read exit label from brtrue.s
-            });
-
-            //File.WriteAllLines("a:\\before.txt", instructions.Select(x => x.ToString()));
-            //File.WriteAllLines("a:\\after.txt", code.Select(x => x.ToString()));
+            Log.Error($"Can't find IsForbidden in ce findPickup_validator");
             return code;
         }
 
-        public static bool AllowEquip(Pawn p, Thing t)
-        {
-            if (!t.def.IsWeapon)
-            {
-                return true;
-            }
+        idx += 2; // after brtrue.s
 
-            var loadout = p.GetLoadout();
+        code.InsertRange(idx, new[]
+        {
+            new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldfld, thisPawn), // pawn
+            new CodeInstruction(OpCodes.Ldarg_1), // thing
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JobGiver_UpdateLoadout_FindPickup_LambdaValidator_Patch), nameof(AllowEquip))),
+            new CodeInstruction(OpCodes.Brfalse_S, code[idx - 1].operand), // read exit label from brtrue.s
+        });
+
+        //File.WriteAllLines("a:\\before.txt", instructions.Select(x => x.ToString()));
+        //File.WriteAllLines("a:\\after.txt", code.Select(x => x.ToString()));
+        return code;
+    }
+
+    public static bool AllowEquip(Pawn p, Thing t)
+    {
+        if (!t.def.IsWeapon)
+        {
+            return true;
+        }
+
+        var loadout = p.GetLoadout();
+        if (loadout == null)
+        {
+            return true;
+        }
+
+        if (loadout is Loadout_Multi loadoutMulti)
+        {
+            loadout = loadoutMulti.FindLoadoutWithThingDef(t.def);
             if (loadout == null)
             {
                 return true;
             }
-
-            if (loadout is Loadout_Multi loadoutMulti)
-            {
-                loadout = loadoutMulti.FindLoadoutWithThingDef(t.def);
-                if (loadout == null)
-                {
-                    return true;
-                }
-            }
-
-            return loadout.Extended().Allows(t);
         }
+
+        return loadout.Extended().Allows(t);
     }
 }

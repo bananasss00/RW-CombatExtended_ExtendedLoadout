@@ -4,147 +4,146 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace CombatExtended.ExtendedLoadout
+namespace CombatExtended.ExtendedLoadout;
+
+/// <summary>
+/// Replaced pawn.GetLoadout() => pawn.GetLoadout().Loadout2, and SetLoadout2
+/// </summary>
+[HotSwappable]
+public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
 {
-    /// <summary>
-    /// Replaced pawn.GetLoadout() => pawn.GetLoadout().Loadout2, and SetLoadout2
-    /// </summary>
-    [HotSwappable]
-    public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
+    public static Texture2D PersonalLoadoutImage => ContentFinder<Texture2D>.Get("UI/personalLoadout");
+
+    private int GetIndexFromDefName(string defName)
     {
-        public static Texture2D PersonalLoadoutImage => ContentFinder<Texture2D>.Get("UI/personalLoadout");
+        return int.Parse(defName.Split('_')[1]);
+    }
 
-        private int GetIndexFromDefName(string defName)
-        {
-            return int.Parse(defName.Split('_')[1]);
-        }
-
-        protected IEnumerable<Widgets.DropdownMenuElement<Loadout>> Btn_GenerateMenu(Pawn pawn)
-        {
-            using List<Loadout>.Enumerator enu = LoadoutManager.Loadouts.GetEnumerator();
+    protected IEnumerable<Widgets.DropdownMenuElement<Loadout>> Btn_GenerateMenu(Pawn pawn)
+    {
+        using List<Loadout>.Enumerator enu = LoadoutManager.Loadouts.GetEnumerator();
             
-            while (enu.MoveNext())
-            {
-                Loadout loadout = enu.Current;
-                yield return new Widgets.DropdownMenuElement<Loadout>
-                {
-                    option = new FloatMenuOption(loadout.LabelCap, delegate
-                    {
-                        pawn.SetLoadout(loadout, GetIndexFromDefName(def.defName));
-                    }),
-                    payload = loadout
-                };
-            }
-        }
-
-        public override void DoHeader(Rect rect, PawnTable table)
+        while (enu.MoveNext())
         {
-            if (GetIndexFromDefName(def.defName) == 0)
+            Loadout loadout = enu.Current;
+            yield return new Widgets.DropdownMenuElement<Loadout>
             {
-                base.DoHeader(rect, table);
-                return;
-            }
-
-            // dont call base.DoHeader(rect, table) (PawnColumnWorker_Loadout.DoHeader), because he draw button ManageLoadouts
-            // instead draw vanilla base code
-            if (!def.label.NullOrEmpty())
-            {
-                Text.Font = DefaultHeaderFont;
-                GUI.color = DefaultHeaderColor;
-                Text.Anchor = TextAnchor.LowerCenter;
-                var rect2 = rect;
-                rect2.y += 3f;
-                Widgets.Label(rect2, def.LabelCap.Resolve().Truncate(rect.width));
-                Text.Anchor = TextAnchor.UpperLeft;
-                GUI.color = Color.white;
-                Text.Font = GameFont.Small;
-            }
-            else if (def.HeaderIcon != null)
-            {
-                var headerIconSize = def.HeaderIconSize;
-                var num = (int)((rect.width - headerIconSize.x) / 2f);
-                GUI.DrawTexture(new Rect(rect.x + num, rect.yMax - headerIconSize.y, headerIconSize.x, headerIconSize.y).ContractedBy(2f), def.HeaderIcon);
-            }
-
-            if (table.SortingBy == def)
-            {
-                var texture2D = table.SortingDescending ? SortingDescendingIcon : SortingIcon;
-                GUI.DrawTexture(new Rect(rect.xMax - texture2D.width - 1f, rect.yMax - texture2D.height - 1f, texture2D.width, texture2D.height), texture2D);
-            }
-
-            if (def.HeaderInteractable)
-            {
-                var interactableHeaderRect = GetInteractableHeaderRect(rect, table);
-                if (Mouse.IsOver(interactableHeaderRect))
+                option = new FloatMenuOption(loadout.LabelCap, delegate
                 {
-                    Widgets.DrawHighlight(interactableHeaderRect);
-                    var headerTip = GetHeaderTip(table);
-                    if (!headerTip.NullOrEmpty())
-                    {
-                        TooltipHandler.TipRegion(interactableHeaderRect, headerTip);
-                    }
-                }
-
-                if (Widgets.ButtonInvisible(interactableHeaderRect))
-                {
-                    HeaderClicked(rect, table);
-                }
-            }
+                    pawn.SetLoadout(loadout, GetIndexFromDefName(def.defName));
+                }),
+                payload = loadout
+            };
         }
+    }
 
-        public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
+    public override void DoHeader(Rect rect, PawnTable table)
+    {
+        if (GetIndexFromDefName(def.defName) == 0)
         {
-            if (pawn.outfits == null)
-            {
-                return;
-            }
-
-            int index = GetIndexFromDefName(def.defName);
-
-            //changed: int num = Mathf.FloorToInt((rect.width - 4f) * 0.714285731f);
-            int num = Mathf.FloorToInt((rect.width - 4f) - IconSize);
-            //changed: int num2 = Mathf.FloorToInt((rect.width - 4f) * 0.2857143f);
-            int num2 = Mathf.FloorToInt(IconSize);
-            float num3 = rect.x;
-            //added:
-            float num4 = rect.y + ((rect.height - IconSize) / 2);
-
-            // Reduce width if we're adding a clear forced button
-            Rect loadoutRect = new(num3, rect.y + 2f, num, rect.height - 4f);
-
-            if (GetIndexFromDefName(def.defName) == 0)
-            {
-                int personalIconSize = 24;
-                Rect personalLoadoutRect = new(loadoutRect.x, loadoutRect.y, personalIconSize, personalIconSize);
-                loadoutRect.x += 4f + personalIconSize;
-                loadoutRect.width -= 4f + personalIconSize;
-                num3 += 4f + personalIconSize;
-
-                if (Widgets.ButtonImage(personalLoadoutRect, PersonalLoadoutImage))
-                {
-                    Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended(pawn, (pawn.GetLoadout() as Loadout_Multi)!.PersonalLoadout));
-                }
-                TooltipHandler.TipRegion(personalLoadoutRect, new TipSignal(textGetter("CE_Extended.PersonalLoadoutTip"), pawn.GetHashCode() * 6178));
-            }
-
-            // Main loadout button
-            string label = (pawn.GetLoadout() as Loadout_Multi)![index].label.Truncate(loadoutRect.width);
-            Widgets.Dropdown(loadoutRect, pawn, p => (p.GetLoadout() as Loadout_Multi)![index], Btn_GenerateMenu, label, null, null, null, null, true);
-
-            // Clear forced button
-            num3 += loadoutRect.width;
-            num3 += 4f;
-
-            //changed: Rect assignTabRect = new Rect(num3, rect.y + 2f, (float)num2, rect.height - 4f);
-            Rect assignTabRect = new(num3, num4, num2, num2);
-            //changed: if (Widgets.ButtonText(assignTabRect, "AssignTabEdit".Translate(), true, false, true))
-            if (Widgets.ButtonImage(assignTabRect, EditImage))
-            {
-                Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended((pawn.GetLoadout() as Loadout_Multi)![index]));
-            }
-            // Added this next line.
-            TooltipHandler.TipRegion(assignTabRect, new TipSignal(textGetter("CE_Loadouts"), pawn.GetHashCode() * 613));
-            num3 += num2;
+            base.DoHeader(rect, table);
+            return;
         }
+
+        // dont call base.DoHeader(rect, table) (PawnColumnWorker_Loadout.DoHeader), because he draw button ManageLoadouts
+        // instead draw vanilla base code
+        if (!def.label.NullOrEmpty())
+        {
+            Text.Font = DefaultHeaderFont;
+            GUI.color = DefaultHeaderColor;
+            Text.Anchor = TextAnchor.LowerCenter;
+            var rect2 = rect;
+            rect2.y += 3f;
+            Widgets.Label(rect2, def.LabelCap.Resolve().Truncate(rect.width));
+            Text.Anchor = TextAnchor.UpperLeft;
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+        }
+        else if (def.HeaderIcon != null)
+        {
+            var headerIconSize = def.HeaderIconSize;
+            var num = (int)((rect.width - headerIconSize.x) / 2f);
+            GUI.DrawTexture(new Rect(rect.x + num, rect.yMax - headerIconSize.y, headerIconSize.x, headerIconSize.y).ContractedBy(2f), def.HeaderIcon);
+        }
+
+        if (table.SortingBy == def)
+        {
+            var texture2D = table.SortingDescending ? SortingDescendingIcon : SortingIcon;
+            GUI.DrawTexture(new Rect(rect.xMax - texture2D.width - 1f, rect.yMax - texture2D.height - 1f, texture2D.width, texture2D.height), texture2D);
+        }
+
+        if (def.HeaderInteractable)
+        {
+            var interactableHeaderRect = GetInteractableHeaderRect(rect, table);
+            if (Mouse.IsOver(interactableHeaderRect))
+            {
+                Widgets.DrawHighlight(interactableHeaderRect);
+                var headerTip = GetHeaderTip(table);
+                if (!headerTip.NullOrEmpty())
+                {
+                    TooltipHandler.TipRegion(interactableHeaderRect, headerTip);
+                }
+            }
+
+            if (Widgets.ButtonInvisible(interactableHeaderRect))
+            {
+                HeaderClicked(rect, table);
+            }
+        }
+    }
+
+    public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
+    {
+        if (pawn.outfits == null)
+        {
+            return;
+        }
+
+        int index = GetIndexFromDefName(def.defName);
+
+        //changed: int num = Mathf.FloorToInt((rect.width - 4f) * 0.714285731f);
+        int num = Mathf.FloorToInt((rect.width - 4f) - IconSize);
+        //changed: int num2 = Mathf.FloorToInt((rect.width - 4f) * 0.2857143f);
+        int num2 = Mathf.FloorToInt(IconSize);
+        float num3 = rect.x;
+        //added:
+        float num4 = rect.y + ((rect.height - IconSize) / 2);
+
+        // Reduce width if we're adding a clear forced button
+        Rect loadoutRect = new(num3, rect.y + 2f, num, rect.height - 4f);
+
+        if (GetIndexFromDefName(def.defName) == 0)
+        {
+            int personalIconSize = 24;
+            Rect personalLoadoutRect = new(loadoutRect.x, loadoutRect.y, personalIconSize, personalIconSize);
+            loadoutRect.x += 4f + personalIconSize;
+            loadoutRect.width -= 4f + personalIconSize;
+            num3 += 4f + personalIconSize;
+
+            if (Widgets.ButtonImage(personalLoadoutRect, PersonalLoadoutImage))
+            {
+                Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended(pawn, (pawn.GetLoadout() as Loadout_Multi)!.PersonalLoadout));
+            }
+            TooltipHandler.TipRegion(personalLoadoutRect, new TipSignal(textGetter("CE_Extended.PersonalLoadoutTip"), pawn.GetHashCode() * 6178));
+        }
+
+        // Main loadout button
+        string label = (pawn.GetLoadout() as Loadout_Multi)![index].label.Truncate(loadoutRect.width);
+        Widgets.Dropdown(loadoutRect, pawn, p => (p.GetLoadout() as Loadout_Multi)![index], Btn_GenerateMenu, label, null, null, null, null, true);
+
+        // Clear forced button
+        num3 += loadoutRect.width;
+        num3 += 4f;
+
+        //changed: Rect assignTabRect = new Rect(num3, rect.y + 2f, (float)num2, rect.height - 4f);
+        Rect assignTabRect = new(num3, num4, num2, num2);
+        //changed: if (Widgets.ButtonText(assignTabRect, "AssignTabEdit".Translate(), true, false, true))
+        if (Widgets.ButtonImage(assignTabRect, EditImage))
+        {
+            Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended((pawn.GetLoadout() as Loadout_Multi)![index]));
+        }
+        // Added this next line.
+        TooltipHandler.TipRegion(assignTabRect, new TipSignal(textGetter("CE_Loadouts"), pawn.GetHashCode() * 613));
+        num3 += num2;
     }
 }

@@ -1,17 +1,16 @@
 ﻿using Verse;
 
-namespace CombatExtended.ExtendedLoadout
-{
-    public class ModActive
-    {
-        private static bool? _betterPawnControl;
+namespace CombatExtended.ExtendedLoadout;
 
-        public static bool BetterPawnControl
+public class ModActive
+{
+    private static bool? _betterPawnControl;
+
+    public static bool BetterPawnControl
+    {
+        get
         {
-            get
-            {
-                return _betterPawnControl ??= ModLister.GetActiveModWithIdentifier("VouLT.BetterPawnControl") != null;
-            }
+            return _betterPawnControl ??= ModLister.GetActiveModWithIdentifier("VouLT.BetterPawnControl") != null;
         }
     }
 }
