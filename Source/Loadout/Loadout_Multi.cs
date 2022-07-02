@@ -144,6 +144,41 @@ public class Loadout_Multi : Loadout, IExposable, ILoadReferenceable
                 }
             }
         }
+        if (_personalLoadout != null)
+        {
+            foreach (var slot in _personalLoadout.Slots)
+            {
+                if (slot.thingDef == t)
+                {
+                    return _personalLoadout;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Loadout? FindLoadoutWithSlot(LoadoutSlot targetSlot)
+    {
+        foreach (var loadout in _loadouts)
+        {
+            foreach (var slot in loadout.Slots)
+            {
+                if (slot == targetSlot)
+                {
+                    return loadout;
+                }
+            }
+        }
+        if (_personalLoadout != null)
+        {
+            foreach (var slot in _personalLoadout.Slots)
+            {
+                if (slot == targetSlot)
+                {
+                    return _personalLoadout;
+                }
+            }
+        }
         return null;
     }
 }

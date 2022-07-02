@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -11,6 +12,7 @@ namespace CombatExtended.ExtendedLoadout;
 /// Draw HP and Quality ranges
 /// </summary>
 [HarmonyPatch(typeof(Dialog_ManageLoadouts), nameof(Dialog_ManageLoadouts.DoWindowContents))]
+[HotSwappable]
 public class Dialog_ManageLoadouts_DoWindowContents_Patch
 {
     static bool Prepare() => ExtendedLoadoutMod.Instance.useHpAndQualityInLoadouts;
@@ -28,7 +30,7 @@ public class Dialog_ManageLoadouts_DoWindowContents_Patch
             if (!heightFixed && ci.opcode == OpCodes.Ldc_R4 && (float)ci.operand == 48f)
             {
                 // decrease slotListRect height
-                ci.operand = 120f; // canvas3..ctor(0f, canvas2.yMax + 6f, (canvas.width - 6f) / 2f, canvas.height - 30f - canvas2.height - 48f - 30f);
+                ci.operand = 180f; // canvas3..ctor(0f, canvas2.yMax + 6f, (canvas.width - 6f) / 2f, canvas.height - 30f - canvas2.height - 48f - 30f);
                 yield return ci;
                 heightFixed = true;
             }
@@ -57,10 +59,17 @@ public class Dialog_ManageLoadouts_DoWindowContents_Patch
 
     public static void DrawHpQuality(Dialog_ManageLoadouts dialog, Rect bulkBarRect)
     {
-        Rect hpRect = new(bulkBarRect.xMin, bulkBarRect.yMax + Dialog_ManageLoadouts._margin, bulkBarRect.width, Dialog_ManageLoadouts._barHeight);
+        Rect refillRect = new(bulkBarRect.xMin, bulkBarRect.yMax + Dialog_ManageLoadouts._margin, bulkBarRect.width, Dialog_ManageLoadouts._barHeight);
+        Rect hpRect = new(refillRect.xMin, refillRect.yMax + Dialog_ManageLoadouts._margin, refillRect.width, Dialog_ManageLoadouts._barHeight);
         Rect qualityRect = new(hpRect.xMin, hpRect.yMax + Dialog_ManageLoadouts._margin, hpRect.width, Dialog_ManageLoadouts._barHeight);
         var loadoutExtended = dialog.CurrentLoadout.Extended();
-        Widgets.FloatRange(hpRect, 976833332, ref loadoutExtended.HpRange, 0f, 1f, "HitPoints", ToStringStyle.PercentZero);
-        Widgets.QualityRange(qualityRect, 976833333, ref loadoutExtended.QualityRange);
+        
+        GUI.color = Widgets.RangeControlTextColor;
+        loadoutExtended.RefillThreshold = Widgets.HorizontalSlider(refillRect, loadoutExtended.RefillThreshold, 0f, 1f, false, "CE_Extended.RefillThreshold".Translate(Mathf.RoundToInt(loadoutExtended.RefillThreshold * 100)), null, null, -1f);
+        GUI.color = Color.white;
+        
+        Widgets.FloatRange(hpRect, 976833333, ref loadoutExtended.HpRange, 0f, 1f, "HitPoints", ToStringStyle.PercentZero);
+        
+        Widgets.QualityRange(qualityRect, 976833334, ref loadoutExtended.QualityRange);
     }
 }

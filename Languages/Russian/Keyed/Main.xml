@@ -12,7 +12,7 @@
 	
 	<CE_Extended.PersonalLoadoutTip>персональное снаряжение колониста</CE_Extended.PersonalLoadoutTip>
 	
-	<CE_Extended.Medicines>Медикаменты: {0} или хуже</CE_Extended.Medicines>
+	<CE_Extended.RefillThreshold>Порог пополнения {0}%</CE_Extended.RefillThreshold>
 	
 	<Loadout1>Cнаряжение 1</Loadout1>
 	<Loadout2>Cнаряжение 2</Loadout2>
