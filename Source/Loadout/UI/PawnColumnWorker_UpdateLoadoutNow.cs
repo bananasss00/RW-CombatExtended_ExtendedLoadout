@@ -34,6 +34,8 @@ public class PawnColumnWorker_UpdateLoadoutNow : PawnColumnWorker
         if (job != null)
         {
             pawn.jobs.StartJob(job, JobCondition.InterruptForced);
+            if (pawn.mindState != null)
+                pawn.mindState.nextApparelOptimizeTick = -99999;
         }
     }
 
