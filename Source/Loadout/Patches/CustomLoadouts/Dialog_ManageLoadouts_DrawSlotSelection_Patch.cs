@@ -58,9 +58,9 @@ public class Dialog_ManageLoadouts_DrawSlotSelection_Patch
 
                 Widgets.Label(labelRect, __instance._sourceGeneric[i].LabelCap);
             } else {
-                var descRect = row.LeftPart(0.85f);
+                var descRect = row.LeftPart(0.90f);
                 var def = __instance._source[i].thingDef;
-                Widgets.DefIcon(descRect.LeftPart(.15f), def);
+                Widgets.DefIcon(descRect.LeftPart(.10f), def);
 
                 if (__instance._source[i].isGreyedOut) // DefIcon reset GUI.color, so set after
                     GUI.color = Color.gray;

@@ -43,11 +43,17 @@ public class Loadout_Multi : Loadout, IExposable, ILoadReferenceable
 
     public void GeneratePersonalLoadout(Pawn pawn)
     {
+        if (!pawn.RaceProps.Humanlike)
+            return;
+
         _pawn = pawn;
         
-        var loadout = pawn.GenerateLoadoutFromPawn();
-        loadout.label = pawn.Name.ToStringShort;
-        loadout.Slots.Clear();
+        // var loadout = pawn.GenerateLoadoutFromPawn();
+        // loadout.label = pawn.Name.ToStringShort;
+        // loadout.Slots.Clear();
+        var loadout = new Loadout(pawn.Name.ToStringShort);
+        loadout.defaultLoadout = false;
+        loadout.canBeDeleted = true;
         _personalLoadout = loadout;
         DbgLog.Msg($"Generated loadout for {pawn}, personalLoadout: {_personalLoadout}");
     }

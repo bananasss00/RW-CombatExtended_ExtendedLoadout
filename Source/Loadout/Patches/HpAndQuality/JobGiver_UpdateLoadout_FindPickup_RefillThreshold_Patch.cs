@@ -28,7 +28,7 @@ public class JobGiver_UpdateLoadout_FindPickup_RefillThreshold_Patch
         var loadout = pawn.GetLoadout();
         if (loadout == null)
             return true;
-
+        
         if (loadout is Loadout_Multi loadoutMulti)
         {
             loadout = loadoutMulti.FindLoadoutWithSlot(curSlot);

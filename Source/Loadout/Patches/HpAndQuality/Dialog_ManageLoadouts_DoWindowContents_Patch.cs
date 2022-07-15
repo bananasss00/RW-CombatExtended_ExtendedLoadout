@@ -30,7 +30,7 @@ public class Dialog_ManageLoadouts_DoWindowContents_Patch
             if (!heightFixed && ci.opcode == OpCodes.Ldc_R4 && (float)ci.operand == 48f)
             {
                 // decrease slotListRect height
-                ci.operand = 180f; // canvas3..ctor(0f, canvas2.yMax + 6f, (canvas.width - 6f) / 2f, canvas.height - 30f - canvas2.height - 48f - 30f);
+                ci.operand = 160f; // canvas3..ctor(0f, canvas2.yMax + 6f, (canvas.width - 6f) / 2f, canvas.height - 30f - canvas2.height - 48f - 30f);
                 yield return ci;
                 heightFixed = true;
             }

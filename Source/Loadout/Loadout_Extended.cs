@@ -24,7 +24,7 @@ public static class Loadout_Extensions
 public class Loadout_Extended
 {
     private static readonly Dictionary<Loadout, Loadout_Extended> Loadouts = new();
-    public float RefillThreshold = .75f;
+    public float RefillThreshold = 1f;
     public FloatRange HpRange = FloatRange.ZeroToOne;
     public QualityRange QualityRange = QualityRange.All;
 
@@ -79,7 +79,7 @@ public class Loadout_Extended
 
     public void ExposeData()
     {
-        Scribe_Values.Look(ref RefillThreshold, "RefillThreshold", 0.75f);
+        Scribe_Values.Look(ref RefillThreshold, "RefillThreshold", 1f);
         Scribe_Values.Look(ref HpRange, "hpRange", FloatRange.ZeroToOne);
         Scribe_Values.Look(ref QualityRange, "qualityRange", QualityRange.All);
         DbgLog.Msg($"Loadout_Extended ExposeData");
