@@ -10,6 +10,8 @@
 	<Settings.MultiLoadoutsCount.Label>Количество колонок снаряжений</Settings.MultiLoadoutsCount.Label>
 	<Settings.MultiLoadoutsCount.Desc>Сколько добавить колонок\n\nТребуется перезапуск</Settings.MultiLoadoutsCount.Desc>
 	
+	<Settings.OptimizeApparel.Desc>Принудительно обновлять одежду колонистов(Не забудьте выключить. Возможна нагрузка на TPS)</Settings.OptimizeApparel.Desc>
+	
 	<CE_Extended.PersonalLoadoutTip>персональное снаряжение колониста</CE_Extended.PersonalLoadoutTip>
 	
 	<CE_Extended.RefillThreshold>Порог пополнения {0}%</CE_Extended.RefillThreshold>

@@ -12,8 +12,6 @@ namespace CombatExtended.ExtendedLoadout;
 [HotSwappable]
 public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
 {
-    public static Texture2D PersonalLoadoutImage => ContentFinder<Texture2D>.Get("UI/personalLoadout");
-
     private int GetIndexFromDefName(string defName)
     {
         return int.Parse(defName.Split('_')[1]);
@@ -120,7 +118,7 @@ public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
             loadoutRect.width -= 4f + personalIconSize;
             num3 += 4f + personalIconSize;
 
-            if (Widgets.ButtonImage(personalLoadoutRect, PersonalLoadoutImage))
+            if (Widgets.ButtonImage(personalLoadoutRect, Textures.PersonalLoadout))
             {
                 Find.WindowStack.Add(new Dialog_ManageLoadouts_Extended(pawn, (pawn.GetLoadout() as Loadout_Multi)!.PersonalLoadout));
             }
