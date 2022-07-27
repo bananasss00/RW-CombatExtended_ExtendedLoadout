@@ -147,7 +147,7 @@ public static class Dialog_ManageLoadouts_SaveLoad
         var saveRect = canvas.RightPartPixels(Dialog_ManageLoadouts._topAreaHeight + Dialog_ManageLoadouts._margin);
         saveRect.height = saveRect.width = Dialog_ManageLoadouts._topAreaHeight;
         
-        if (Widgets.ButtonImage(saveRect, Textures.LoadoutLoadAll))
+        if (Widgets.ButtonImage(saveRect, Textures.Save))
         {
             Find.WindowStack.Add(new Dialog_SaveLoad());
         }
@@ -396,5 +396,5 @@ public class Dialog_SaveLoad : Window
         }
     }
 }
-    
+   
 

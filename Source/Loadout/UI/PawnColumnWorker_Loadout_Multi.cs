@@ -12,6 +12,10 @@ namespace CombatExtended.ExtendedLoadout;
 [HotSwappable]
 public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
 {
+    private static Dictionary<string, ThingDef> _firstGenericCache = new();
+
+    static int GetSlotCountClamped(Loadout loadout, int max) => (loadout.Slots.Count < 0) ? 0 : (loadout.Slots.Count > max) ? max : loadout.Slots.Count;
+
     private int GetIndexFromDefName(string defName)
     {
         return int.Parse(defName.Split('_')[1]);
@@ -19,16 +23,40 @@ public class PawnColumnWorker_Loadout_Multi : PawnColumnWorker_Loadout
 
     protected IEnumerable<Widgets.DropdownMenuElement<Loadout>> Btn_GenerateMenu(Pawn pawn)
     {
+        const int elementHeight = 25;
         using List<Loadout>.Enumerator enu = LoadoutManager.Loadouts.GetEnumerator();
             
         while (enu.MoveNext())
         {
             Loadout loadout = enu.Current;
+            int slotCount = GetSlotCountClamped(loadout, 5); // clamp 0:5
             yield return new Widgets.DropdownMenuElement<Loadout>
             {
                 option = new FloatMenuOption(loadout.LabelCap, delegate
                 {
                     pawn.SetLoadout(loadout, GetIndexFromDefName(def.defName));
+                }, extraPartWidth: elementHeight * slotCount, extraPartOnGUI: rect => {
+                    var iconsRect = rect.RightPartPixels((elementHeight) * slotCount);
+                    for (int i = 0; i < slotCount; i++) {
+                        Rect iconRect = new(iconsRect) { width = elementHeight, height = elementHeight };
+                        iconRect.x += i * (elementHeight);
+                        var slot = loadout.Slots[i];
+                        ThingDef def;
+                        if (slot.genericDef != null) {
+                            if (!_firstGenericCache.TryGetValue(slot.genericDef.defName, out def)) {
+                                def = DefDatabase<ThingDef>.AllDefsListForReading.FirstOrDefault(x => slot.genericDef.lambda(x));
+                                _firstGenericCache.Add(slot.genericDef.defName, def);
+                            }
+                        }
+                        else def = slot.thingDef;
+                        Widgets.DefIcon(iconRect, def);
+
+                        if (def != null && Mouse.IsOver(iconRect)) {
+                            TooltipHandler.TipRegion(iconRect, def.DescriptionDetailed);
+                            Widgets.DrawHighlight(iconRect);
+                        }
+                    }
+                    return false;
                 }),
                 payload = loadout
             };
