@@ -164,8 +164,8 @@ public class Dialog_SaveLoad : Window
     private int _selectedFile = -1, _previousSelectedFile = -1;
     private string _savePath = GenFilePaths.FolderUnderSaveData("CE.ExtendedLoadouts");
     private Dictionary<Loadout, bool> _checkState = new();
-    private float loaudoutsHeight = 0f;
-    private Vector2 loaudoutsScroll, filesScroll;
+    private Vector2 _loaudoutsScroll, _filesScroll;
+    private Dictionary<string, ThingDef> _firstGenericCache = new();
     
     public override Vector2 InitialSize => new(900, 600);
     
@@ -308,14 +308,38 @@ public class Dialog_SaveLoad : Window
     private void DrawLoadouts(Rect rect, int fileNum, Loadout loadout) {
         float yPos = fileNum * (elementHeight + margin);
         Rect lineRect = new(rect.x, rect.y + yPos, rect.width, elementHeight + margin);
+
         if (!_checkState.TryGetValue(loadout, out bool state)) {
             _checkState.Add(loadout, state = true);
         }
+
         Widgets.CheckboxLabeled(lineRect, loadout.LabelCap, ref state);
         _checkState[loadout] = state;
         if (Mouse.IsOver(lineRect)) {
             TooltipHandler.TipRegion(lineRect, string.Join("\n", loadout.Slots.Select(x => $"{x.LabelCap} x{x.count}")));
             Widgets.DrawHighlight(lineRect);
+        }
+
+        int slotCount = (loadout.Slots.Count < 0) ? 0 : (loadout.Slots.Count > 5) ? 5 : loadout.Slots.Count; // clamp 0:5
+        var iconsRect = lineRect.RightPartPixels((elementHeight) * (slotCount + 1));
+        for (int i = 0; i < slotCount; i++) {
+            Rect iconRect = new(iconsRect) { width = elementHeight, height = elementHeight };
+            iconRect.x += i * (elementHeight);
+            var slot = loadout.Slots[i];
+            ThingDef def;
+            if (slot.genericDef != null) {
+                if (!_firstGenericCache.TryGetValue(slot.genericDef.defName, out def)) {
+                    def = DefDatabase<ThingDef>.AllDefsListForReading.FirstOrDefault(x => slot.genericDef.lambda(x));
+                    _firstGenericCache.Add(slot.genericDef.defName, def);
+                }
+            }
+            else def = slot.thingDef;
+            Widgets.DefIcon(iconRect, def);
+
+			if (def != null && Mouse.IsOver(iconRect)) {
+				TooltipHandler.TipRegion(iconRect, def.DescriptionDetailed);
+				Widgets.DrawHighlight(iconRect);
+			}
         }
     }
 
@@ -336,7 +360,7 @@ public class Dialog_SaveLoad : Window
         rightRect.xMin += margin;
 
         Rect viewRect = new(leftRect.x, leftRect.y, leftRect.width - 25f, (_files.Count + 1) * (elementHeight + margin * 2/* top and bottom*/));
-        Widgets.BeginScrollView(leftRect, ref filesScroll, viewRect);
+        Widgets.BeginScrollView(leftRect, ref _filesScroll, viewRect);
         leftRect.width -= 25f;
         DrawSaveFile(leftRect, -1);
         for (int i = 0; i < _files.Count; i++)
@@ -354,7 +378,7 @@ public class Dialog_SaveLoad : Window
         var loadouts = GetLoadouts();
         if (loadouts != null) {
             viewRect = new(rightLoadoutsRect.x, rightLoadoutsRect.y, rightLoadoutsRect.width - 25f, loadouts.Length * (elementHeight + margin));
-            Widgets.BeginScrollView(rightLoadoutsRect, ref loaudoutsScroll, viewRect);
+            Widgets.BeginScrollView(rightLoadoutsRect, ref _loaudoutsScroll, viewRect);
             rightLoadoutsRect.width -= 25f;
             for (int i = 0; i < loadouts.Length; i++)
             {
@@ -372,3 +396,5 @@ public class Dialog_SaveLoad : Window
         }
     }
 }
+    
+
