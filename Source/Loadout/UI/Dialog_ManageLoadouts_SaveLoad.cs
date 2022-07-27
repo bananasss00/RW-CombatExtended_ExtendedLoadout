@@ -12,6 +12,7 @@ using Verse;
 
 namespace CombatExtended.ExtendedLoadout;
 
+#region CE Serialize
 [Serializable]
 public class LoadoutConfig
 {
@@ -130,6 +131,9 @@ public static class LoadUtil
     }
 }
 
+#endregion CE Serialize
+
+
 [HarmonyPatch(typeof(Dialog_ManageLoadouts))]
 [HotSwappable]
 public static class Dialog_ManageLoadouts_SaveLoad
@@ -140,39 +144,231 @@ public static class Dialog_ManageLoadouts_SaveLoad
     [HarmonyPostfix]
     public static void Postfix(Dialog_ManageLoadouts __instance, Rect canvas)
     {
-        // save, load, loadall
-        var saveRect = canvas.RightPartPixels((Dialog_ManageLoadouts._topAreaHeight + Dialog_ManageLoadouts._margin) * 3);
+        var saveRect = canvas.RightPartPixels(Dialog_ManageLoadouts._topAreaHeight + Dialog_ManageLoadouts._margin);
         saveRect.height = saveRect.width = Dialog_ManageLoadouts._topAreaHeight;
-        var loadRect = new Rect(saveRect.xMax + Dialog_ManageLoadouts._margin, 0f, Dialog_ManageLoadouts._topAreaHeight, Dialog_ManageLoadouts._topAreaHeight);
-        var loadAllRect = new Rect(loadRect.xMax + Dialog_ManageLoadouts._margin, 0f, Dialog_ManageLoadouts._topAreaHeight, Dialog_ManageLoadouts._topAreaHeight);
+        
+        if (Widgets.ButtonImage(saveRect, Textures.LoadoutLoadAll))
+        {
+            Find.WindowStack.Add(new Dialog_SaveLoad());
+        }
+    }
+}
 
-        if (Widgets.ButtonImage(saveRect, Textures.LoadoutSave))
+public class Dialog_SaveLoad : Window
+{
+    private const bool closeOnSave = false;
+    private const int elementHeight = 25;
+    private const int margin = 5;
+    private string _saveFileName;
+    private List<(string name, Loadout[] loadouts, LoadStatus status, string loadStatusMessage)> _files;
+    private int _selectedFile = -1, _previousSelectedFile = -1;
+    private string _savePath = GenFilePaths.FolderUnderSaveData("CE.ExtendedLoadouts");
+    private Dictionary<Loadout, bool> _checkState = new();
+    private float loaudoutsHeight = 0f;
+    private Vector2 loaudoutsScroll, filesScroll;
+    
+    public override Vector2 InitialSize => new(900, 600);
+    
+    public enum LoadStatus {
+        Fine,
+        Warning,
+        Error
+    }
+
+    public Dialog_SaveLoad()
+    {
+        doCloseButton = false;
+        doCloseX = true;
+        forcePause = true;
+        absorbInputAroundWindow = true;
+        closeOnAccept = false;
+        draggable = true;
+        ReloadFiles();
+    }
+
+    private void ReloadFiles()
+    {
+        _files = new();
+        foreach (var file in Directory.GetFiles(_savePath, "*.xml"))
         {
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(LoadoutConfigs));
-            using TextWriter writer = new StreamWriter(new FileInfo("loadouts.xml").FullName);
-            xmlSerializer.Serialize(writer, LoadoutManager.Loadouts.Where(x => !x.defaultLoadout).ToConfig());
-        }
-        if (Widgets.ButtonImage(loadRect, Textures.LoadoutLoad))
-        {
-            var mySerializer = new XmlSerializer(typeof(LoadoutConfigs));
-            using var myFileStream = new FileStream(new FileInfo("loadouts.xml").FullName, FileMode.Open);
-            LoadoutConfigs loadoutConfigs = (LoadoutConfigs)mySerializer.Deserialize(myFileStream);
-            var loadouts = LoadUtil.FromConfig(loadoutConfigs, out List<string> unloadableDefNames);
-            // Report any LoadoutSlots (i.e. ThingDefs) that could not be loaded.
-            if (unloadableDefNames.Count > 0)
+            try
             {
-                Messages.Message(
-                    "CE_MissingLoadoutSlots".Translate(String.Join(", ", unloadableDefNames)), 
-                    null, MessageTypeDefOf.RejectInput);
+                var mySerializer = new XmlSerializer(typeof(LoadoutConfigs));
+                using var myFileStream = new FileStream(new FileInfo(file).FullName, FileMode.Open);
+                var loadoutConfigs = (LoadoutConfigs)mySerializer.Deserialize(myFileStream);
+                var loadouts = LoadUtil.FromConfig(loadoutConfigs, out List<string> unloadableDefNames);
+                _files.Add(new(
+                    Path.GetFileNameWithoutExtension(file),
+                    loadouts,
+                    unloadableDefNames.Any() ? LoadStatus.Warning : LoadStatus.Fine,
+                    unloadableDefNames.Any() ? "unloadableDefNames:\n" + string.Join("\n", unloadableDefNames) : string.Empty));
             }
-            foreach (var loudout in loadouts)
+            catch (Exception ex)
             {
-                LoadoutManager.AddLoadout(loudout);
+                _files.Add(new(Path.GetFileNameWithoutExtension(file), null, LoadStatus.Error, ex.ToString()));
             }
         }
-        if (Widgets.ButtonImage(loadAllRect, Textures.LoadoutLoadAll))
-        {
-            Log.Error("LoadoutLoadAll");
+    }
+
+    private Loadout[] GetLoadouts() { 
+        return _selectedFile == -1 ? LoadoutManager.Loadouts.Where(x => !x.defaultLoadout).ToArray() : _files[_selectedFile].loadouts;
+    }
+
+    private static Texture2D StatusToTexture(LoadStatus status) => status switch {
+        LoadStatus.Fine => Textures.Fine,
+        LoadStatus.Warning => Textures.Warning,
+        LoadStatus.Error => Textures.Error,
+        _ => throw new ArgumentException("Unknown status")
+    };
+
+    private Loadout[] GetCheckedLoadouts() => _checkState.Where(x => x.Value).Select(x => x.Key).ToArray();
+
+    private void DrawSaveFile(Rect rect, int fileNum) {
+        float yPos = (fileNum + 1) * (elementHeight + margin * 2/* top and bottom*/);
+        Rect lineRect = new(rect.x, rect.y + yPos, rect.width, elementHeight + margin * 2);
+        Rect inlineRect = lineRect.ContractedBy(margin);
+
+        float fileNameWidth = inlineRect.width - 3 * (elementHeight + margin);
+        Rect loadStatusRect = new(inlineRect.x, inlineRect.y, elementHeight, elementHeight);
+        Rect fileNameRect = new(loadStatusRect.xMax + margin, inlineRect.y, fileNameWidth, elementHeight);
+        Rect saveOrLoadIconRect = new(fileNameRect.xMax + margin, inlineRect.y, elementHeight, elementHeight);
+        Rect deleteIconRect = new(saveOrLoadIconRect.xMax + margin, inlineRect.y, elementHeight, elementHeight);
+        if (fileNum == -1) {
+            // new file text entry
+            _saveFileName = Widgets.TextField(fileNameRect, _saveFileName);
+
+            if (Mouse.IsOver(saveOrLoadIconRect))
+                TooltipHandler.TipRegion(saveOrLoadIconRect, "CE_SL.Save".Translate());
+            if (Widgets.ButtonImage(saveOrLoadIconRect, Textures.Save)) {
+                if (!string.IsNullOrWhiteSpace(_saveFileName)) {
+                    XmlSerializer xmlSerializer = new XmlSerializer(typeof(LoadoutConfigs));
+                    using (TextWriter writer = new StreamWriter(new FileInfo(Path.Combine(_savePath, _saveFileName + ".xml")).FullName)) {
+                        xmlSerializer.Serialize(writer, GetCheckedLoadouts().ToConfig());
+                    }
+                    ReloadFiles();
+                    if (closeOnSave)
+                        Close();
+                }
+            }
+        } else {
+            // existing file
+            var file = _files[fileNum];
+            Widgets.Label(fileNameRect, file.name);
+
+            if (file.status != LoadStatus.Error) {
+                if (Mouse.IsOver(saveOrLoadIconRect))
+                    TooltipHandler.TipRegion(saveOrLoadIconRect, "CE_SL.Load".Translate());
+                if (Widgets.ButtonImage(saveOrLoadIconRect, Textures.Load)) {
+                    foreach (var loudout in GetCheckedLoadouts())
+                    {
+                        LoadoutManager.AddLoadout(loudout);
+                    }
+                    Close();
+                }
+            }
+            if (Mouse.IsOver(deleteIconRect))
+                TooltipHandler.TipRegion(deleteIconRect, "CE_SL.Delete".Translate());
+            if (Widgets.ButtonImage(deleteIconRect, Textures.Delete)) {
+                File.Delete(Path.Combine(_savePath, file.name + ".xml"));
+                _files.Remove(file);
+                _selectedFile = -1;
+            }
+            
+            GUI.DrawTexture(loadStatusRect, StatusToTexture(file.status));
+            if (Mouse.IsOver(loadStatusRect)) {
+                TooltipHandler.TipRegion(loadStatusRect, file.loadStatusMessage);
+                Widgets.DrawHighlight(loadStatusRect);
+            }
+        }
+
+        if (Input.GetMouseButtonDown(0) && Mouse.IsOver(lineRect)) {
+            _selectedFile = fileNum;
+        }
+        if (_selectedFile == fileNum) {
+            Widgets.DrawHighlight(lineRect);
+        }
+    }
+
+    private void DrawLoadoutsButtons(Rect rect) {
+        Rect checkRect = new(rect.x, rect.y, elementHeight, elementHeight);
+        Rect uncheckRect = new(checkRect.xMax + margin, rect.y, elementHeight, elementHeight);
+
+        if (Mouse.IsOver(checkRect))
+            TooltipHandler.TipRegion(checkRect, "CE_SL.CheckAll".Translate());
+        if (Widgets.ButtonImage(checkRect, Textures.Check)) {
+            _checkState = _checkState.ToDictionary(x => x.Key, y => true);
+        }
+        if (Mouse.IsOver(uncheckRect))
+            TooltipHandler.TipRegion(uncheckRect, "CE_SL.UncheckAll".Translate());
+        if (Widgets.ButtonImage(uncheckRect, Textures.Uncheck)) {
+            _checkState = _checkState.ToDictionary(x => x.Key, y => false);
+        }
+    }
+
+    private void DrawLoadouts(Rect rect, int fileNum, Loadout loadout) {
+        float yPos = fileNum * (elementHeight + margin);
+        Rect lineRect = new(rect.x, rect.y + yPos, rect.width, elementHeight + margin);
+        if (!_checkState.TryGetValue(loadout, out bool state)) {
+            _checkState.Add(loadout, state = true);
+        }
+        Widgets.CheckboxLabeled(lineRect, loadout.LabelCap, ref state);
+        _checkState[loadout] = state;
+        if (Mouse.IsOver(lineRect)) {
+            TooltipHandler.TipRegion(lineRect, string.Join("\n", loadout.Slots.Select(x => $"{x.LabelCap} x{x.count}")));
+            Widgets.DrawHighlight(lineRect);
+        }
+    }
+
+    public override void DoWindowContents(Rect inRect)
+    {
+        // split window two parts
+        var leftRect = inRect.LeftPartPixels(inRect.width / 2f);
+        leftRect.yMin = leftRect.xMin = margin;
+        var rightRect = inRect.RightPartPixels(inRect.width / 2f);
+        rightRect.yMin = margin;
+        rightRect.xMin += margin;
+
+        // draw saves border
+        Widgets.DrawMenuSection(leftRect);
+        Widgets.DrawMenuSection(rightRect);
+        leftRect = leftRect.ContractedBy(1);
+        rightRect = rightRect.ContractedBy(1);
+        rightRect.xMin += margin;
+
+        Rect viewRect = new(leftRect.x, leftRect.y, leftRect.width - 25f, (_files.Count + 1) * (elementHeight + margin * 2/* top and bottom*/));
+        Widgets.BeginScrollView(leftRect, ref filesScroll, viewRect);
+        leftRect.width -= 25f;
+        DrawSaveFile(leftRect, -1);
+        for (int i = 0; i < _files.Count; i++)
+            DrawSaveFile(leftRect, i);
+        Widgets.EndScrollView();
+        //
+        
+
+        var rightButtonsRect = rightRect.TopPartPixels(elementHeight);
+        var rightLoadoutsRect = rightRect.BottomPartPixels(rightRect.height - elementHeight);
+
+        DrawLoadoutsButtons(rightButtonsRect);
+        
+        
+        var loadouts = GetLoadouts();
+        if (loadouts != null) {
+            viewRect = new(rightLoadoutsRect.x, rightLoadoutsRect.y, rightLoadoutsRect.width - 25f, loadouts.Length * (elementHeight + margin));
+            Widgets.BeginScrollView(rightLoadoutsRect, ref loaudoutsScroll, viewRect);
+            rightLoadoutsRect.width -= 25f;
+            for (int i = 0; i < loadouts.Length; i++)
+            {
+                DrawLoadouts(rightLoadoutsRect, i, loadouts[i]);
+            }
+            Widgets.EndScrollView();
+        }
+
+        // Widgets.DrawHighlight(rightRect);
+
+        // selected loadouts
+        if (_previousSelectedFile != _selectedFile) {
+            _previousSelectedFile = _selectedFile;
+            _checkState = new();
         }
     }
 }
